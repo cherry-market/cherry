@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Cherry - K-Pop Goods Resale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              cherry: {
+                DEFAULT: '#FF2E88', // High Saturation Pink
+                deep: '#C20055',    // Deep Ink Pink
+                neon: '#FF5CA5',    // Glowing Pink
+                pastel: '#FFD1DC',  // Soft Pastel for gradients
+              },
+              silver: {
+                light: '#F3F4F6',
+                DEFAULT: '#D1D5DB',
+                metal: '#9CA3AF',
+                dark: '#4B5563',
+              },
+              ink: '#09090B',       // Almost Black
+              surface: '#FFFFFF',   // White Base
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            letterSpacing: {
+              tightest: '-0.05em',
+            },
+            boxShadow: {
+              'object': '0 10px 30px -10px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 1px 0 rgba(255,255,255,0.9)',
+              'object-hover': '0 25px 50px -12px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 1px 0 rgba(255,255,255,1)',
+              'pressed': 'inset 0 2px 4px rgba(0,0,0,0.1)',
+            },
+          },
+        },
+      };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --shadow-object: 0 10px 30px -10px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 1px 0 rgba(255,255,255,0.9);
+        --shadow-object-hover: 0 25px 50px -12px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 1px 0 rgba(255,255,255,1);
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #FFFFFF;
+        /* Updated Gradient: Top-Left Start, slightly saturated pastel pink fading to white */
+        background-image: radial-gradient(circle at 0% 0%, rgba(255, 46, 136, 0.06) 0%, rgba(255, 255, 255, 0) 55%);
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        color: #09090B;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* THE OBJECT: Thick, Cold, Glass */
+      .glass-object {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(24px) saturate(120%);
+        -webkit-backdrop-filter: blur(24px) saturate(120%);
+        box-shadow: var(--shadow-object);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+      }
+      
+      /* TACTILE PHYSICS */
+      .tactile {
+        transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        will-change: transform, box-shadow;
+      }
+      .tactile:active {
+        transform: scale(0.96) translateY(2px);
+      }
+      .tactile:hover {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: var(--shadow-object-hover);
+        z-index: 10;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
