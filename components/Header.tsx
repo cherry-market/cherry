@@ -35,41 +35,55 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onFilterClick, isScrol
         </div>
       </div>
 
-      {/* 2. MAIN HEADER (Logo & Search) */}
-      <div className="px-4 py-4 max-w-7xl mx-auto w-full flex items-center justify-between gap-4 md:gap-8">
-        
-        {/* Logo */}
-        <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => window.location.reload()}>
-            <span className="font-black text-2xl tracking-tighter text-cherry">CHERRY</span>
-        </div>
+      {/* 2. MAIN HEADER */}
+      <div className="px-4 py-3 md:py-4 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-8">
+            
+            {/* Row 1 (Mobile): Logo + Icons */}
+            <div className="flex items-center justify-between w-full md:w-auto">
+                {/* Logo */}
+                <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => window.location.reload()}>
+                    <span className="font-black text-2xl tracking-tighter text-cherry">CHERRY</span>
+                </div>
 
-        {/* Search Bar - Center Stage */}
-        <div className="flex-1 max-w-2xl relative group">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search size={20} className="text-silver-dark group-focus-within:text-cherry transition-colors" />
-          </div>
-          <input 
-            type="text" 
-            value={query}
-            onChange={handleChange}
-            placeholder="상품을 검색해 보세요 (예: 아이브 포카)" 
-            className="w-full h-12 pl-12 pr-4 rounded-[12px] bg-silver-light/50 border border-transparent focus:bg-white focus:border-cherry focus:ring-2 focus:ring-cherry/10 outline-none transition-all text-sm font-bold text-ink placeholder:text-silver-dark/80"
-          />
-        </div>
+                {/* Mobile Icons (Right) - Tightly grouped */}
+                <div className="flex md:hidden items-center justify-end gap-2">
+                    {/* Bell */}
+                    <Button 
+                        variant="icon" 
+                        className="w-10 h-10 border-none bg-transparent hover:bg-gray-50 shadow-none text-ink p-2"
+                    >
+                         <Bell size={24} />
+                    </Button>
+                    {/* Cart */}
+                    <Button 
+                        variant="icon" 
+                        className="w-10 h-10 border-none bg-transparent hover:bg-gray-50 shadow-none text-ink p-2"
+                    >
+                         <ShoppingBag size={24} />
+                    </Button>
+                </div>
+            </div>
 
-        {/* Right Icons (Mobile/Desktop Mixed) */}
-        <div className="flex items-center gap-1 md:gap-3 shrink-0">
-            {/* Desktop Icons */}
-            <div className="hidden md:flex items-center gap-2">
+            {/* Row 2 (Mobile) / Center (Desktop): Search */}
+            <div className="w-full md:flex-1 md:max-w-2xl relative group">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                <Search size={20} className="text-silver-dark group-focus-within:text-cherry transition-colors" />
+              </div>
+              <input 
+                type="text" 
+                value={query}
+                onChange={handleChange}
+                placeholder="상품을 검색해 보세요 (예: 아이브 포카)" 
+                className="w-full h-12 pl-12 pr-4 rounded-[16px] bg-silver-light/50 border border-transparent focus:bg-white focus:border-cherry focus:ring-4 focus:ring-cherry/5 outline-none transition-all text-sm font-bold text-ink placeholder:text-silver-dark/80 shadow-inner"
+              />
+            </div>
+
+            {/* Desktop Icons (Hidden on Mobile) */}
+            <div className="hidden md:flex items-center gap-2 shrink-0">
                  <Button variant="ghost" className="p-2"><Heart size={22} /></Button>
                  <Button variant="ghost" className="p-2"><ShoppingBag size={22} /></Button>
                  <Button variant="ghost" className="p-2"><User size={22} /></Button>
-            </div>
-            
-            {/* Mobile Icons */}
-            <div className="flex md:hidden items-center gap-1">
-                <Button variant="ghost" className="p-2 text-ink"><Bell size={22} /></Button>
-                <Button variant="ghost" className="p-2 text-ink"><ShoppingBag size={22} /></Button>
             </div>
         </div>
       </div>

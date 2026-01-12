@@ -7,6 +7,7 @@ import { FilterSheet } from './components/FilterSheet';
 import { ProductDetail } from './components/ProductDetail';
 import { ImageGeneratorSheet } from './components/ImageGenerator';
 import { BannerCarousel } from './components/BannerCarousel';
+import { BottomNavigation } from './components/BottomNavigation';
 import { Sparkles, Loader2 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 20;
@@ -15,6 +16,7 @@ const App: React.FC = () => {
   // Navigation State
   const [view, setView] = useState<'LIST' | 'DETAIL'>('LIST');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [activeTab, setActiveTab] = useState('HOME');
 
   // Data State
   const [allProducts, setAllProducts] = useState<Product[]>(MOCK_PRODUCTS);
@@ -161,12 +163,20 @@ const App: React.FC = () => {
     setVisibleProducts(prev => [newProduct, ...prev]);
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === 'HOME') {
+        window.scrollTo(0,0);
+        setCurrentFilter(prev => ({ ...prev, status: 'ALL', category: 'ALL' }));
+    }
+  };
+
   if (view === 'DETAIL' && selectedProduct) {
     return <ProductDetail product={selectedProduct} onBack={handleBack} />;
   }
 
   return (
-    <div className="min-h-screen pb-20 relative">
+    <div className="min-h-screen pb-24 md:pb-10 relative">
       <Header 
         onSearch={setSearchQuery} 
         onFilterClick={() => setIsFilterOpen(true)}
@@ -215,9 +225,13 @@ const App: React.FC = () => {
         )}
       </main>
 
+      {/* Mobile Bottom Navigation */}
+      <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+
+      {/* Floating Action Button - Positioned above Bottom Nav on Mobile */}
       <button 
         onClick={() => setIsAiSheetOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-cherry text-white rounded-full shadow-[0_8px_30px_rgba(255,46,136,0.4)] flex items-center justify-center z-40 hover:scale-105 active:scale-95 transition-transform"
+        className="fixed bottom-20 md:bottom-6 right-6 w-14 h-14 bg-cherry text-white rounded-full shadow-[0_8px_30px_rgba(255,46,136,0.4)] flex items-center justify-center z-40 hover:scale-105 active:scale-95 transition-transform"
       >
         <Sparkles size={24} />
       </button>
