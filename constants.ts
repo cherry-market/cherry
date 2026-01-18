@@ -71,9 +71,11 @@ const SEED_PRODUCTS: Product[] = [
     tags: ['뉴진스', '버니', '풀박스'],
     description: '포카 확인만 하고 보관했습니다. 구성품 다 있어요. 박스 상태 최상입니다. 홍대입구역 직거래 가능해요.',
     images: [
-      'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=400&q=80', 
+      'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=400&q=80',
       'https://images.unsplash.com/photo-1606103920295-9a091573f160?auto=format&fit=crop&w=400&q=80'
-    ]
+    ],
+    artist: 'NewJeans',
+    tradeType: 'DIRECT'
   },
   {
     id: '2',
@@ -91,7 +93,9 @@ const SEED_PRODUCTS: Product[] = [
     },
     tags: ['아이브', '장원영', '공방포카', '레어'],
     description: '극희귀 공방 포카입니다. 하자 전혀 없고요, 탑로더+뽁뽁이 안전포장해서 보내드립니다.',
-    images: ['https://images.unsplash.com/photo-1526045612212-70fad8114247?auto=format&fit=crop&w=400&q=80']
+    images: ['https://images.unsplash.com/photo-1526045612212-70fad8114247?auto=format&fit=crop&w=400&q=80'],
+    artist: 'IVE',
+    tradeType: 'DELIVERY'
   },
   {
     id: '3',
@@ -110,9 +114,11 @@ const SEED_PRODUCTS: Product[] = [
     tags: ['NCT', '엔시티127', '믐뭔봄'],
     description: '콘서트 때 한 번 사용했습니다. 건전지는 빼서 드려요. 박스에 약간 찍힘 있습니다.',
     images: [
-        'https://images.unsplash.com/photo-1563245372-f21724e3a80d?auto=format&fit=crop&w=400&q=80', 
-        'https://images.unsplash.com/photo-1606103920295-9a091573f160?auto=format&fit=crop&w=400&q=80'
-    ]
+      'https://images.unsplash.com/photo-1563245372-f21724e3a80d?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1606103920295-9a091573f160?auto=format&fit=crop&w=400&q=80'
+    ],
+    artist: 'NCT 127',
+    tradeType: 'DELIVERY'
   },
   {
     id: '4',
@@ -130,7 +136,9 @@ const SEED_PRODUCTS: Product[] = [
     },
     tags: ['블랙핑크', '지수', '한정판'],
     description: '한정판 포토북입니다. 특전 포함 풀셋입니다.',
-    images: ['https://images.unsplash.com/photo-1544967082-d9d25d867d66?auto=format&fit=crop&w=400&q=80']
+    images: ['https://images.unsplash.com/photo-1544967082-d9d25d867d66?auto=format&fit=crop&w=400&q=80'],
+    artist: 'BLACKPINK',
+    tradeType: 'DELIVERY'
   },
   {
     id: '5',
@@ -148,9 +156,11 @@ const SEED_PRODUCTS: Product[] = [
     },
     tags: ['세븐틴', '민규', '솜뭉치'],
     description: '너무 귀여운 10cm 인형입니다. 사진에 보이는 옷 포함해서 드려요.',
-    images: ['https://images.unsplash.com/photo-1555445054-8488d05c9584?auto=format&fit=crop&w=400&q=80']
+    images: ['https://images.unsplash.com/photo-1555445054-8488d05c9584?auto=format&fit=crop&w=400&q=80'],
+    artist: 'SEVENTEEN',
+    tradeType: 'DIRECT'
   },
-   {
+  {
     id: '6',
     title: '에스파 카리나 Girls 디럭스 박스',
     price: 55000,
@@ -166,22 +176,26 @@ const SEED_PRODUCTS: Product[] = [
     },
     tags: ['에스파', '카리나', '디럭스'],
     description: '미개봉 디럭스 박스입니다. 소장용으로 추천드려요.',
-    images: ['https://images.unsplash.com/photo-1606103920295-9a091573f160?auto=format&fit=crop&w=400&q=80']
+    images: ['https://images.unsplash.com/photo-1606103920295-9a091573f160?auto=format&fit=crop&w=400&q=80'],
+    artist: 'aespa',
+    tradeType: 'DELIVERY'
   }
 ];
 
 // Function to generate 100 mock items with strict category images
 const generateMockData = (count: number): Product[] => {
   const products: Product[] = [];
+  const artists = ['NewJeans', 'IVE', 'NCT 127', 'BLACKPINK', 'SEVENTEEN', 'aespa', 'BTS', 'TWICE'];
+
   for (let i = 0; i < count; i++) {
     const seed = SEED_PRODUCTS[i % SEED_PRODUCTS.length];
     const randomPriceVariation = Math.floor(Math.random() * 5000) - 2500;
     const randomLikeVariation = Math.floor(Math.random() * 50);
-    
+
     // Pick a random image from the correct category
     // This ensures that an "Album" always gets an album-like image, and "Fashion" gets a bag/shirt
     const randomImgUrl = getRandomImage(seed.category);
-    
+
     products.push({
       ...seed,
       id: `${i + 1}`,
@@ -189,7 +203,9 @@ const generateMockData = (count: number): Product[] => {
       price: Math.max(1000, seed.price + randomPriceVariation),
       likes: seed.likes + randomLikeVariation,
       image: randomImgUrl,
-      images: [randomImgUrl, getRandomImage(seed.category)]
+      images: [randomImgUrl, getRandomImage(seed.category)],
+      artist: artists[Math.floor(Math.random() * artists.length)],
+      tradeType: Math.random() > 0.5 ? 'DELIVERY' : 'DIRECT'
     });
   }
   return products;

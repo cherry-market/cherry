@@ -1,4 +1,5 @@
 export type ProductStatus = 'SELLING' | 'RESERVED' | 'SOLD';
+export type TradeType = 'DELIVERY' | 'DIRECT' | 'ALL';
 
 export interface Product {
   id: string;
@@ -17,6 +18,10 @@ export interface Product {
   tags: string[];
   description: string;
   images: string[]; // For detail view slider
+
+  // Added for RFP-01
+  artist?: string;
+  tradeType: TradeType;
 }
 
 export interface FilterState {
@@ -24,7 +29,8 @@ export interface FilterState {
   category: string | 'ALL';
   minPrice: number;
   maxPrice: number;
-  sortBy: 'LATEST' | 'POPULAR' | 'LOW_PRICE';
+  sortBy: 'LATEST' | 'POPULAR' | 'LOW_PRICE' | 'HIGH_PRICE'; // Added HIGH_PRICE
+  tradeType: TradeType; // Added tradeType
 }
 
 export interface User {

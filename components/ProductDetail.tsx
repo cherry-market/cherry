@@ -18,16 +18,16 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
   const handleRegenerateImage = async () => {
     setIsGenerating(true);
     try {
-        const prompt = `${product.title} ${product.category}. K-pop merchandise product photography.`;
-        const newUrl = await generateGoodsImage(prompt);
-        if (newUrl) {
-            setDisplayImage(newUrl);
-        }
+      const prompt = `${product.title} ${product.category}. K-pop merchandise product photography.`;
+      const newUrl = await generateGoodsImage(prompt);
+      if (newUrl) {
+        setDisplayImage(newUrl);
+      }
     } catch (error) {
-        console.error("Failed to generate image", error);
-        alert("이미지 생성에 실패했습니다.");
+      console.error("Failed to generate image", error);
+      alert("이미지 생성에 실패했습니다.");
     } finally {
-        setIsGenerating(false);
+      setIsGenerating(false);
     }
   };
 
@@ -50,39 +50,39 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
 
       {/* Image Slider */}
       <div className="relative w-full aspect-square bg-gray-200 overflow-hidden rounded-b-[32px] shadow-lg group">
-        <img 
+        <img
           src={displayImage}
           alt={product.title}
-          className="w-full h-full object-cover transition-opacity duration-300" 
+          className="w-full h-full object-cover transition-opacity duration-300"
         />
-        
+
         {/* Loading Overlay */}
         {isGenerating && (
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
-                <Loader2 size={48} className="animate-spin mb-2" />
-                <span className="font-bold text-sm">AI가 굿즈 이미지를 생성중입니다...</span>
-            </div>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
+            <Loader2 size={48} className="animate-spin mb-2" />
+            <span className="font-bold text-sm">AI가 굿즈 이미지를 생성중입니다...</span>
+          </div>
         )}
 
         {/* AI Generator Trigger Button */}
         <div className="absolute bottom-4 right-4 z-10">
-            <button 
-                onClick={handleRegenerateImage}
-                disabled={isGenerating}
-                className="flex items-center gap-2 bg-black/30 backdrop-blur-md hover:bg-cherry border border-white/30 text-white px-3 py-2 rounded-full text-xs font-bold transition-all active:scale-95 shadow-lg"
-            >
-                {isGenerating ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                {displayImage === product.images[0] ? "AI로 실제 이미지 생성" : "이미지 다시 만들기"}
-            </button>
+          <button
+            onClick={handleRegenerateImage}
+            disabled={isGenerating}
+            className="flex items-center gap-2 bg-black/30 backdrop-blur-md hover:bg-cherry border border-white/30 text-white px-3 py-2 rounded-full text-xs font-bold transition-all active:scale-95 shadow-lg"
+          >
+            {isGenerating ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+            {displayImage === product.images[0] ? "AI로 실제 이미지 생성" : "이미지 다시 만들기"}
+          </button>
         </div>
 
         {/* Slider Indicators */}
         {product.images.length > 1 && displayImage === product.images[0] && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 backdrop-blur-md rounded-full pointer-events-none">
             {product.images.map((_, idx) => (
-              <div 
+              <div
                 key={idx}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-3' : 'bg-white/50'}`} 
+                className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-3' : 'bg-white/50'}`}
               />
             ))}
           </div>
@@ -101,23 +101,44 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
             </div>
           </div>
           <div className="text-right">
-             <div className="text-xs font-bold text-cherry flex items-center justify-end gap-1">
-                {product.seller.temperature}°C
-                <div className="w-8 h-1 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-cherry w-[80%]"></div>
-                </div>
-             </div>
-             <span className="text-[10px] text-coolGray">매너온도</span>
+            <div className="text-xs font-bold text-cherry flex items-center justify-end gap-1">
+              {product.seller.temperature}°C
+              <div className="w-8 h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-cherry w-[80%]"></div>
+              </div>
+            </div>
+            <span className="text-[10px] text-coolGray">매너온도</span>
           </div>
         </div>
 
         {/* Product Info */}
         <div className="mb-2 flex items-start justify-between">
-           <div>
-              <Badge status={product.status} className="mb-2" />
-              <h1 className="text-2xl font-black text-text leading-tight mb-1 break-keep">{product.title}</h1>
-              <p className="text-xs text-coolGray font-medium">{product.category} • {product.uploadedTime}</p>
-           </div>
+          <div>
+            <div className="flex gap-2 mb-2">
+              <Badge status={product.status} />
+              {product.tradeType === 'DIRECT' && (
+                <span className="px-2 py-0.5 rounded-[6px] bg-green-100 text-green-700 text-[10px] font-bold flex items-center">
+                  직거래
+                </span>
+              )}
+              {product.tradeType === 'DELIVERY' && (
+                <span className="px-2 py-0.5 rounded-[6px] bg-blue-100 text-blue-700 text-[10px] font-bold flex items-center">
+                  택배
+                </span>
+              )}
+            </div>
+            <h1 className="text-2xl font-black text-text leading-tight mb-1 break-keep">{product.title}</h1>
+            <div className="flex flex-col gap-1 mt-1">
+              <p className="text-xs text-coolGray font-medium">
+                {product.category} • {product.uploadedTime}
+              </p>
+              {product.artist && (
+                <p className="text-xs font-bold text-cherry">
+                  Artist: {product.artist}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Description */}
@@ -139,21 +160,21 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
 
       {/* Sticky Bottom Bar - Centered */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/80 backdrop-blur-xl border-t border-gray-200 p-4 pb-safe flex items-center justify-between z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.05)]">
-            <div className="flex items-center gap-2">
-                <button className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95 flex flex-col items-center">
-                    <Heart size={24} />
-                    <span className="text-[9px] font-bold">찜</span>
-                </button>
-                <div className="pl-2 border-l border-gray-200">
-                    <p className="text-xl font-black text-text">{product.price.toLocaleString()} <span className="text-sm">원</span></p>
-                    <p className="text-[10px] font-bold text-cherry cursor-pointer">가격 제안하기</p>
-                </div>
-            </div>
-            
-            <Button className="pl-6 pr-8">
-                <MessageCircle size={18} className="mr-2" />
-                채팅하기
-            </Button>
+        <div className="flex items-center gap-2">
+          <button className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95 flex flex-col items-center">
+            <Heart size={24} />
+            <span className="text-[9px] font-bold">찜</span>
+          </button>
+          <div className="pl-2 border-l border-gray-200">
+            <p className="text-xl font-black text-text">{product.price.toLocaleString()} <span className="text-sm">원</span></p>
+            <p className="text-[10px] font-bold text-cherry cursor-pointer">가격 제안하기</p>
+          </div>
+        </div>
+
+        <Button className="pl-6 pr-8">
+          <MessageCircle size={18} className="mr-2" />
+          채팅하기
+        </Button>
       </div>
 
       <style>{`

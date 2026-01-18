@@ -27,8 +27,9 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
       status: 'ALL',
       category: 'ALL',
       minPrice: 0,
-      maxPrice: 1000000,
-      sortBy: 'LATEST'
+      maxPrice: 0,
+      sortBy: 'LATEST',
+      tradeType: 'ALL'
     });
   };
 
@@ -49,11 +50,11 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity"
         onClick={onClose}
       />
-      
+
       {/* Sheet - Constrained width */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 bg-white/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/50 shadow-2xl max-h-[85vh] overflow-y-auto animate-[slideUp_0.3s_ease-out]">
         <div className="sticky top-0 bg-white/50 backdrop-blur-md z-10 px-6 py-4 flex items-center justify-between border-b border-gray-100">
@@ -74,8 +75,8 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
                   onClick={() => handleStatusToggle(status)}
                   className={`
                     px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
-                    ${localFilter.status === status 
-                      ? 'bg-cherry text-white border-cherry shadow-md' 
+                    ${localFilter.status === status
+                      ? 'bg-cherry text-white border-cherry shadow-md'
                       : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
                   `}
                 >
@@ -91,11 +92,11 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleCategoryToggle('ALL')}
-                 className={`
+                className={`
                     px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
                     ${localFilter.category === 'ALL'
-                      ? 'bg-cherry text-white border-cherry shadow-md' 
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
+                    ? 'bg-cherry text-white border-cherry shadow-md'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
                   `}
               >
                 전체
@@ -107,7 +108,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
                   className={`
                     px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
                     ${localFilter.category === cat
-                      ? 'bg-cherry text-white border-cherry shadow-md' 
+                      ? 'bg-cherry text-white border-cherry shadow-md'
                       : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
                   `}
                 >
@@ -117,27 +118,77 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
             </div>
           </section>
 
+          {/* Trade Type Section */}
+          <section>
+            <h3 className="text-sm font-bold text-coolGray mb-3 uppercase tracking-wider">거래 방식</h3>
+            <div className="flex flex-wrap gap-2">
+              {(['ALL', 'DIRECT', 'DELIVERY'] as const).map(type => (
+                <button
+                  key={type}
+                  onClick={() => setLocalFilter(prev => ({ ...prev, tradeType: type }))}
+                  className={`
+                    px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
+                    ${localFilter.tradeType === type
+                      ? 'bg-cherry text-white border-cherry shadow-md'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
+                  `}
+                >
+                  {type === 'ALL' ? '전체' : type === 'DIRECT' ? '직거래' : '택배'}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Price Range Section */}
+          <section>
+            <h3 className="text-sm font-bold text-coolGray mb-3 uppercase tracking-wider">가격 범위</h3>
+            <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-[20px] border border-gray-100">
+              <div className="flex-1">
+                <p className="text-xs text-silver-dark mb-1 ml-1 font-semibold">최소 금액</p>
+                <input
+                  type="number"
+                  value={localFilter.minPrice || ''}
+                  onChange={e => setLocalFilter(prev => ({ ...prev, minPrice: Number(e.target.value) }))}
+                  placeholder="0"
+                  className="w-full bg-white h-10 px-3 rounded-xl border border-gray-200 focus:border-cherry focus:ring-2 focus:ring-cherry/10 outline-none text-sm font-bold text-ink"
+                />
+              </div>
+              <span className="text-silver-dark font-bold mt-4">~</span>
+              <div className="flex-1">
+                <p className="text-xs text-silver-dark mb-1 ml-1 font-semibold">최대 금액</p>
+                <input
+                  type="number"
+                  value={localFilter.maxPrice || ''}
+                  onChange={e => setLocalFilter(prev => ({ ...prev, maxPrice: Number(e.target.value) }))}
+                  placeholder="무제한"
+                  className="w-full bg-white h-10 px-3 rounded-xl border border-gray-200 focus:border-cherry focus:ring-2 focus:ring-cherry/10 outline-none text-sm font-bold text-ink"
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Sort Section */}
           <section>
-             <h3 className="text-sm font-bold text-coolGray mb-3 uppercase tracking-wider">정렬</h3>
-             <div className="space-y-2">
-                {[
-                  { id: 'LATEST', label: '최신순' },
-                  { id: 'POPULAR', label: '인기순' },
-                  { id: 'LOW_PRICE', label: '낮은 가격순' }
-                ].map(opt => (
-                  <div 
-                    key={opt.id}
-                    onClick={() => setLocalFilter(prev => ({...prev, sortBy: opt.id as any}))}
-                    className="flex items-center justify-between p-3 rounded-[18px] bg-white border border-gray-100 active:scale-98 transition-transform cursor-pointer"
-                  >
-                    <span className={`font-semibold ${localFilter.sortBy === opt.id ? 'text-cherry' : 'text-gray-700'}`}>
-                      {opt.label}
-                    </span>
-                    {localFilter.sortBy === opt.id && <Check size={18} className="text-cherry" />}
-                  </div>
-                ))}
-             </div>
+            <h3 className="text-sm font-bold text-coolGray mb-3 uppercase tracking-wider">정렬</h3>
+            <div className="space-y-2">
+              {[
+                { id: 'LATEST', label: '최신순' },
+                { id: 'POPULAR', label: '인기순' },
+                { id: 'LOW_PRICE', label: '낮은 가격순' },
+                { id: 'HIGH_PRICE', label: '높은 가격순' }
+              ].map(opt => (
+                <div
+                  key={opt.id}
+                  onClick={() => setLocalFilter(prev => ({ ...prev, sortBy: opt.id as any }))}
+                  className="flex items-center justify-between p-3 rounded-[18px] bg-white border border-gray-100 active:scale-98 transition-transform cursor-pointer"
+                >
+                  <span className={`font-semibold ${localFilter.sortBy === opt.id ? 'text-cherry' : 'text-gray-700'}`}>
+                    {opt.label}
+                  </span>
+                  {localFilter.sortBy === opt.id && <Check size={18} className="text-cherry" />}
+                </div>
+              ))}
+            </div>
           </section>
         </div>
 
@@ -152,7 +203,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
           </Button>
         </div>
       </div>
-      
+
       <style>{`
         @keyframes slideUp {
           from { transform: translate(-50%, 100%); }
