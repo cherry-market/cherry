@@ -12,13 +12,9 @@ interface ProductDetailProps {
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // State to handle AI Generated Image override
   const [displayImage, setDisplayImage] = useState<string>(product.images[0]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // If user swipes, update the display image to the slider image (unless we have a generated one?)
-  // For simplicity, let's keep the AI image separate or replace the current index.
-  
   const handleRegenerateImage = async () => {
     setIsGenerating(true);
     try {
@@ -36,7 +32,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA] flex flex-col pb-24 animate-[fadeIn_0.3s_ease-out] max-w-2xl mx-auto shadow-2xl relative">
+    <div className="min-h-screen bg-[#F5F6FA] flex flex-col pb-24 animate-[fadeIn_0.3s_ease-out] relative">
       {/* Header (Absolute) */}
       <header className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center">
         <Button variant="icon" onClick={onBack}>
@@ -80,7 +76,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
             </button>
         </div>
 
-        {/* Slider Indicators (Hide if AI image replaces it) */}
+        {/* Slider Indicators */}
         {product.images.length > 1 && displayImage === product.images[0] && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 backdrop-blur-md rounded-full pointer-events-none">
             {product.images.map((_, idx) => (
@@ -141,22 +137,23 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
         </div>
       </div>
 
-      {/* Sticky Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-200 p-4 pb-safe flex items-center justify-between z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.05)] max-w-2xl mx-auto">
-        <div className="flex items-center gap-2">
-            <button className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95">
-                <Heart size={24} />
-            </button>
-            <div className="pl-2 border-l border-gray-200">
-                <p className="text-xl font-black text-text">{product.price.toLocaleString()} <span className="text-sm">원</span></p>
-                <p className="text-[10px] font-bold text-cherry cursor-pointer">가격 제안하기</p>
+      {/* Sticky Bottom Bar - Centered */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/80 backdrop-blur-xl border-t border-gray-200 p-4 pb-safe flex items-center justify-between z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.05)]">
+            <div className="flex items-center gap-2">
+                <button className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95 flex flex-col items-center">
+                    <Heart size={24} />
+                    <span className="text-[9px] font-bold">찜</span>
+                </button>
+                <div className="pl-2 border-l border-gray-200">
+                    <p className="text-xl font-black text-text">{product.price.toLocaleString()} <span className="text-sm">원</span></p>
+                    <p className="text-[10px] font-bold text-cherry cursor-pointer">가격 제안하기</p>
+                </div>
             </div>
-        </div>
-        
-        <Button className="pl-6 pr-8">
-            <MessageCircle size={18} className="mr-2" />
-            채팅하기
-        </Button>
+            
+            <Button className="pl-6 pr-8">
+                <MessageCircle size={18} className="mr-2" />
+                채팅하기
+            </Button>
       </div>
 
       <style>{`

@@ -10,7 +10,7 @@ import { BannerCarousel } from './components/BannerCarousel';
 import { BottomNavigation } from './components/BottomNavigation';
 import { Sparkles, Loader2 } from 'lucide-react';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 10; 
 
 const App: React.FC = () => {
   // Navigation State
@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   
   const [searchQuery, setSearchQuery] = useState('');
+  
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
@@ -52,13 +53,13 @@ const App: React.FC = () => {
   // Scroll Detection
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Filter & Search Logic
+  // Filter Logic
   useEffect(() => {
     let result = [...allProducts];
 
@@ -168,26 +169,29 @@ const App: React.FC = () => {
     if (tab === 'HOME') {
         window.scrollTo(0,0);
         setCurrentFilter(prev => ({ ...prev, status: 'ALL', category: 'ALL' }));
+        setSearchQuery('');
     }
   };
 
   if (view === 'DETAIL' && selectedProduct) {
-    return <ProductDetail product={selectedProduct} onBack={handleBack} />;
+    return (
+      <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative">
+        <ProductDetail product={selectedProduct} onBack={handleBack} />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen pb-24 md:pb-10 relative">
+    <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative pb-20 border-x border-gray-100">
       <Header 
-        onSearch={setSearchQuery} 
+        onSearch={(q) => setSearchQuery(q)} 
         onFilterClick={() => setIsFilterOpen(true)}
         isScrolled={isScrolled}
       />
 
-      {/* Promotional Banner Area (Only on List view) */}
       {!searchQuery && <BannerCarousel />}
 
-      <main className="px-4 py-2 max-w-7xl mx-auto">
-        {/* Welcome Text (Only if no search) */}
+      <main className="px-4 py-2">
         {!searchQuery && (
           <div className="mb-6 mt-2">
              <div className="flex items-center gap-2 mb-2">
@@ -197,9 +201,8 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Product Grid */}
         {visibleProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-6">
             {visibleProducts.map(product => (
               <ProductCard 
                 key={product.id} 
@@ -225,13 +228,12 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation */}
       <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
-      {/* Floating Action Button - Positioned above Bottom Nav on Mobile */}
+      {/* Floating Action Button - Centered relative to mobile container */}
       <button 
         onClick={() => setIsAiSheetOpen(true)}
-        className="fixed bottom-20 md:bottom-6 right-6 w-14 h-14 bg-cherry text-white rounded-full shadow-[0_8px_30px_rgba(255,46,136,0.4)] flex items-center justify-center z-40 hover:scale-105 active:scale-95 transition-transform"
+        className="fixed bottom-20 left-1/2 ml-[150px] w-14 h-14 bg-cherry text-white rounded-full shadow-[0_8px_30px_rgba(255,46,136,0.4)] flex items-center justify-center z-40 hover:scale-105 active:scale-95 transition-transform"
       >
         <Sparkles size={24} />
       </button>

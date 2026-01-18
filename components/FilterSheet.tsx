@@ -54,8 +54,8 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
         onClick={onClose}
       />
       
-      {/* Sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/50 shadow-2xl max-h-[85vh] overflow-y-auto animate-[slideUp_0.3s_ease-out]">
+      {/* Sheet - Constrained width */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 bg-white/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/50 shadow-2xl max-h-[85vh] overflow-y-auto animate-[slideUp_0.3s_ease-out]">
         <div className="sticky top-0 bg-white/50 backdrop-blur-md z-10 px-6 py-4 flex items-center justify-between border-b border-gray-100">
           <h2 className="text-lg font-black tracking-tight">필터</h2>
           <button onClick={onClose} className="p-2 -mr-2 text-gray-500 active:scale-95 transition-transform">
@@ -142,7 +142,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
         </div>
 
         {/* Footer Actions */}
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 p-6 flex gap-3">
+        <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 p-6 flex gap-3 pb-safe">
           <Button variant="secondary" className="flex-1" onClick={handleReset}>
             <RefreshCw size={16} className="mr-2" />
             초기화
@@ -155,8 +155,11 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
       
       <style>{`
         @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+          from { transform: translate(-50%, 100%); }
+          to { transform: translate(-50%, 0); }
+        }
+        .pb-safe {
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
         }
       `}</style>
     </>

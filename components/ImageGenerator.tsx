@@ -24,7 +24,7 @@ export const ImageGeneratorSheet: React.FC<ImageGeneratorProps> = ({ isOpen, onC
       if (imageUrl) {
         onImageGenerated(imageUrl);
         onClose();
-        setPrompt(''); // Reset prompt after success
+        setPrompt(''); 
       } else {
         setError("생성 실패. API 키를 확인해주세요.");
       }
@@ -45,9 +45,9 @@ export const ImageGeneratorSheet: React.FC<ImageGeneratorProps> = ({ isOpen, onC
         onClick={onClose}
       />
       
-      {/* Sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-[60] bg-white/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/50 shadow-2xl animate-[slideUp_0.3s_ease-out]">
-        <div className="p-6">
+      {/* Sheet - Constrained width */}
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[60] bg-white/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/50 shadow-2xl animate-[slideUp_0.3s_ease-out]">
+        <div className="p-6 pb-safe">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-gradient-to-br from-cherry to-purple-500 rounded-lg text-white">
@@ -96,8 +96,11 @@ export const ImageGeneratorSheet: React.FC<ImageGeneratorProps> = ({ isOpen, onC
       
        <style>{`
         @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
+          from { transform: translate(-50%, 100%); }
+          to { transform: translate(-50%, 0); }
+        }
+        .pb-safe {
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
         }
       `}</style>
     </>
