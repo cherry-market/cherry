@@ -1,0 +1,6 @@
+export const HOME_ITEMS_PER_PAGE = 10;
+export const HOME_SCROLL_TOP_THRESHOLD_PX = 10;
+export const HOME_INFINITE_SCROLL_OFFSET_PX = 300;
+export const HOME_LOAD_MORE_DELAY_MS = 800;
+
+export const BANNER_CAROUSEL_INTERVAL_MS = 5000;
