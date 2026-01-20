@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, MessageCircle } from 'lucide-react';
+import { MessageCircle, Cherry } from 'lucide-react';
 import { Product } from '../types';
 import { Badge } from './Badge';
 
@@ -65,7 +65,7 @@ export const ProductRow: React.FC<ProductRowProps> = ({ product, onClick }) => {
 
                     {/* Like Count - Visual Only as per RFP */}
                     <div className="flex items-center gap-1 min-w-[32px] justify-end">
-                        <Heart size={14} className={product.likes > 0 ? "text-gray-400" : "text-gray-300"} />
+                        <Cherry size={14} className={product.likes > 0 ? "text-gray-400" : "text-gray-300"} />
                         <span className="text-xs text-gray-400">{product.likes}</span>
                     </div>
                 </div>

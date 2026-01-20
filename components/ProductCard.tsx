@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Cherry } from 'lucide-react';
 import { Product } from '../types';
 import { Badge } from './Badge';
 
@@ -73,7 +73,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
 
           {/* Like Count */}
           <div className="flex items-center gap-1 text-silver-metal">
-            <Heart size={10} strokeWidth={2.5} className={isLiked ? 'text-cherry' : ''} />
+            <Cherry size={10} strokeWidth={2.5} className={isLiked ? 'text-cherry' : ''} />
             <span className={`text-[10px] ${isLiked ? 'text-cherry' : ''}`}>{product.likes + (isLiked ? 1 : 0)}</span>
           </div>
         </div>

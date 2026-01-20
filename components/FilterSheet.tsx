@@ -56,7 +56,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
       />
 
       {/* Sheet - Constrained width */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 bg-white/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/50 shadow-2xl max-h-[85vh] overflow-y-auto animate-[slideUp_0.3s_ease-out]">
+      <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[430px] z-50 bg-white/90 backdrop-blur-xl rounded-t-[32px] border-t border-white/50 shadow-2xl max-h-[85vh] overflow-y-auto animate-[slideUp_0.3s_ease-out]">
         <div className="sticky top-0 bg-white/50 backdrop-blur-md z-10 px-6 py-4 flex items-center justify-between border-b border-gray-100">
           <h2 className="text-lg font-black tracking-tight">필터</h2>
           <button onClick={onClose} className="p-2 -mr-2 text-gray-500 active:scale-95 transition-transform">
@@ -199,15 +199,15 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
             초기화
           </Button>
           <Button variant="primary" className="flex-[2]" onClick={handleApply}>
-            결과 보기
+            적용
           </Button>
         </div>
       </div>
 
       <style>{`
         @keyframes slideUp {
-          from { transform: translate(-50%, 100%); }
-          to { transform: translate(-50%, 0); }
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
         }
         .pb-safe {
             padding-bottom: max(24px, env(safe-area-inset-bottom));

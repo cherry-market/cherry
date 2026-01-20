@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Share2, Heart, MoreVertical, MessageCircle, Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Share2, MoreVertical, MessageCircle, Sparkles, Loader2, RefreshCw, Cherry } from 'lucide-react';
 import { Product } from '../types';
 import { Badge } from './Badge';
 import { Button } from './Button';
@@ -142,8 +142,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
       <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[430px] bg-white/80 backdrop-blur-xl border-t border-gray-200 p-4 pb-safe flex items-center justify-between z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.05)]">
         <div className="flex items-center gap-2">
           <button className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95 flex flex-col items-center">
-            <Heart size={24} />
-            <span className="text-[9px] font-bold">찜</span>
+            <Cherry size={24} />
+            <span className="text-[9px] font-bold">픽</span>
           </button>
           <div className="pl-2 border-l border-gray-200">
             <p className="text-xl font-black text-text">{product.price.toLocaleString()} <span className="text-sm">원</span></p>

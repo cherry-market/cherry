@@ -1,10 +1,11 @@
 import React from 'react';
-import { Settings, User, Heart, FileText, ShoppingBag, MapPin, Grid } from 'lucide-react';
+import { Settings, User, FileText, ShoppingBag, MapPin, Grid, Cherry } from 'lucide-react';
 
 export const MyPage: React.FC = () => {
     return (
         <div className="pb-24 pt-4 bg-white min-h-screen">
-            <header className="px-5 flex justify-end mb-4">
+            <header className="px-5 flex justify-between items-center mb-4">
+                <h1 className="text-xl font-bold text-cherry">마이페이지</h1>
                 <Settings size={24} className="text-ink" />
             </header>
 
@@ -39,7 +40,7 @@ export const MyPage: React.FC = () => {
                 <div className="grid grid-cols-3 gap-4 mb-8">
                     <MenuIcon icon={ShoppingBag} label="판매내역" />
                     <MenuIcon icon={FileText} label="구매내역" />
-                    <MenuIcon icon={Heart} label="관심목록" />
+                    <MenuIcon icon={Cherry} label="픽 목록" />
                 </div>
             </div>
 

@@ -37,7 +37,7 @@ const MOCK_CHATS = [
     },
     {
         id: '5',
-        partner: { name: '당근페이', location: '', avatar: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&w=100&q=80' },
+        partner: { name: '체리페이', location: '', avatar: 'https://images.unsplash.com/vector-1757783035399-179f77597c15?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?auto=format&fit=crop&w=100&q=80' },
         lastMessage: '개인정보 이용 · 제공내역 및 수집출처 통지 안내',
         time: '2mo',
         unread: 0,
@@ -56,7 +56,7 @@ export const ChatList: React.FC = () => {
         <div className="pb-24 pt-2">
             {/* Header */}
             <div className="px-5 mb-4 flex items-center justify-between">
-                <h1 className="text-xl font-bold text-ink">Chats</h1>
+                <h1 className="text-xl font-bold text-cherry">채팅</h1>
                 <div className="flex gap-4 text-ink">
                     <SlidersHorizontal size={20} />
                     <Bell size={20} />
@@ -69,7 +69,7 @@ export const ChatList: React.FC = () => {
                     <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`px-3.5 py-1.5 rounded-full text-[13px] font-bold border transition-colors ${filter === f ? 'bg-ink text-white border-ink' : 'bg-white text-gray-500 border-gray-200'}`}
+                        className={`px-3.5 py-1.5 rounded-full text-[13px] font-bold border transition-colors ${filter === f ? 'bg-cherry text-white border-cherry' : 'bg-white text-gray-500 border-gray-200'}`}
                     >
                         {f}
                     </button>

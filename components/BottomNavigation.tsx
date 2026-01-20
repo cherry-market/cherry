@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Heart, User, MessageCircle } from 'lucide-react';
+import { Home, User, MessageCircle, Cherry } from 'lucide-react';
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -24,8 +24,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, o
             onClick={() => onTabChange('CHAT')}
           />
           <NavButton
-            icon={Heart}
-            label="찜"
+            icon={Cherry}
+            label="픽"
             isActive={activeTab === 'LIKES'}
             onClick={() => onTabChange('LIKES')}
           />
