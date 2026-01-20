@@ -9,11 +9,20 @@ interface HeaderProps {
   isScrolled: boolean;
   showBackButton?: boolean;
   onBack?: () => void;
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onSearch, onFilterClick, isScrolled, showBackButton, onBack }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onSearch,
+  onFilterClick,
+  isScrolled,
+  showBackButton,
+  onBack,
+  activeCategory,
+  onCategoryChange
+}) => {
   const [query, setQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('추천');
 
   // Only update local state, do not trigger search
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,9 +49,9 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onFilterClick, isScrol
   };
 
   return (
-    <div className={`sticky top-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm' : 'bg-white'}`}>
+    <div className="bg-white">
 
-      {/* MAIN HEADER */}
+      {/* MAIN HEADER (Scrolls away) */}
       <div className="px-4 py-3 w-full">
         <div className="flex flex-col gap-3">
 
@@ -93,27 +102,22 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onFilterClick, isScrol
         </div>
       </div>
 
-      {/* GNB (Global Navigation Bar) - Hide when searching */}
+      {/* GNB (Global Navigation Bar) - Hide when searching. STICKY. */}
       {!showBackButton && (
-        <div className="border-t border-gray-100">
+        <div className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
           <div className="w-full px-4 overflow-x-auto no-scrollbar">
             <div className="flex items-center gap-6 h-12 text-sm font-bold whitespace-nowrap">
-              {/* Mobile Menu Icon */}
-              <button className="text-ink mr-2">
-                <Menu size={20} />
-              </button>
-
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setActiveTab(cat)}
+                  onClick={() => onCategoryChange(cat)}
                   className={`
                               relative h-full flex items-center transition-colors
-                              ${activeTab === cat ? 'text-cherry' : 'text-coolGray hover:text-ink'}
+                              ${activeCategory === cat ? 'text-cherry' : 'text-coolGray hover:text-ink'}
                           `}
                 >
                   {cat}
-                  {activeTab === cat && (
+                  {activeCategory === cat && (
                     <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-cherry rounded-t-full" />
                   )}
                 </button>

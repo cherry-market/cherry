@@ -181,6 +181,8 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
                         isScrolled={isScrolled}
                         showBackButton={!!searchQuery}
                         onBack={() => handleSearch('')}
+                        activeCategory={currentFilter.category === 'ALL' ? '전체' : currentFilter.category}
+                        onCategoryChange={(cat) => updateFilter({ ...currentFilter, category: cat === '전체' ? 'ALL' : cat })}
                     />
 
                     {!searchQuery && <BannerCarousel />}

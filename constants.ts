@@ -2,7 +2,7 @@ import { Product } from './types';
 
 // Categories for the app
 export const CATEGORIES = [
-  '추천',
+  '전체',
   '포토카드',
   '앨범',
   '응원봉',
