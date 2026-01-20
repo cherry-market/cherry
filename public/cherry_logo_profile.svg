@@ -1,0 +1,17 @@
+<svg width="1024" height="1024" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background: Full Square (No rounded corners) -->
+  <rect x="0" y="0" width="512" height="512" fill="#FF2E88"/>
+  
+  <!-- Text: White 'C', centered -->
+  <text 
+    x="50%" 
+    y="50%" 
+    dominant-baseline="middle" 
+    text-anchor="middle" 
+    font-family="Arial, sans-serif" 
+    font-weight="bold" 
+    font-size="400" 
+    fill="white" 
+    dy="28"
+  >C</text>
+</svg>
