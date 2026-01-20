@@ -12,27 +12,9 @@ interface ProductDetailProps {
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [displayImage, setDisplayImage] = useState<string>(product.images[0]);
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const handleRegenerateImage = async () => {
-    setIsGenerating(true);
-    try {
-      const prompt = `${product.title} ${product.category}. K-pop merchandise product photography.`;
-      const newUrl = await generateGoodsImage(prompt);
-      if (newUrl) {
-        setDisplayImage(newUrl);
-      }
-    } catch (error) {
-      console.error("Failed to generate image", error);
-      alert("이미지 생성에 실패했습니다.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA] flex flex-col pb-24 animate-[fadeIn_0.3s_ease-out] relative">
+    <div className="min-h-screen bg-[#F5F6FA] flex flex-col pb-32 animate-[fadeIn_0.3s_ease-out] relative">
       {/* Header (Absolute) */}
       <header className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center">
         <Button variant="icon" onClick={onBack}>
@@ -51,33 +33,31 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
       {/* Image Slider */}
       <div className="relative w-full aspect-square bg-gray-200 overflow-hidden rounded-b-[32px] shadow-lg group">
         <img
-          src={displayImage}
+          src={product.images[currentImageIndex]}
           alt={product.title}
           className="w-full h-full object-cover transition-opacity duration-300"
         />
 
-        {/* Loading Overlay */}
-        {isGenerating && (
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
-            <Loader2 size={48} className="animate-spin mb-2" />
-            <span className="font-bold text-sm">AI가 굿즈 이미지를 생성중입니다...</span>
-          </div>
+        {/* Navigation Arrows */}
+        {product.images.length > 1 && (
+          <>
+            <button
+              onClick={() => setCurrentImageIndex(prev => prev === 0 ? product.images.length - 1 : prev - 1)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <button
+              onClick={() => setCurrentImageIndex(prev => prev === product.images.length - 1 ? 0 : prev + 1)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <ArrowLeft size={20} className="rotate-180" />
+            </button>
+          </>
         )}
 
-        {/* AI Generator Trigger Button */}
-        <div className="absolute bottom-4 right-4 z-10">
-          <button
-            onClick={handleRegenerateImage}
-            disabled={isGenerating}
-            className="flex items-center gap-2 bg-black/30 backdrop-blur-md hover:bg-cherry border border-white/30 text-white px-3 py-2 rounded-full text-xs font-bold transition-all active:scale-95 shadow-lg"
-          >
-            {isGenerating ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-            {displayImage === product.images[0] ? "AI로 실제 이미지 생성" : "이미지 다시 만들기"}
-          </button>
-        </div>
-
         {/* Slider Indicators */}
-        {product.images.length > 1 && displayImage === product.images[0] && (
+        {product.images.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 backdrop-blur-md rounded-full pointer-events-none">
             {product.images.map((_, idx) => (
               <div
@@ -159,7 +139,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
       </div>
 
       {/* Sticky Bottom Bar - Centered */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white/80 backdrop-blur-xl border-t border-gray-200 p-4 pb-safe flex items-center justify-between z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[430px] bg-white/80 backdrop-blur-xl border-t border-gray-200 p-4 pb-safe flex items-center justify-between z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.05)]">
         <div className="flex items-center gap-2">
           <button className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95 flex flex-col items-center">
             <Heart size={24} />

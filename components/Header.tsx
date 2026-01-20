@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, onFilterClick, isScrol
           <div className="flex items-center justify-between w-full">
             {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => window.location.reload()}>
-              <span className="font-black text-2xl tracking-tighter text-cherry">CHERRY-CI/CD TEST</span>
+              <span className="font-black text-2xl tracking-tighter text-cherry">CHERRY</span>
             </div>
 
             {/* Mobile Icons (Right) - Notification Only (No Cart) */}

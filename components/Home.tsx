@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { Product, FilterState } from '../types';
 import { Header } from './Header';
 import { ProductCard } from './ProductCard';
+import { ProductRow } from './ProductRow';
+import { TrendingSection } from './TrendingSection';
+import { ProductWriteButton } from './ProductWriteButton';
+import { ChatList } from './ChatList';
+import { WishList } from './WishList';
+import { MyPage } from './MyPage';
 import { FilterSheet } from './FilterSheet';
 import { BannerCarousel } from './BannerCarousel';
 import { BottomNavigation } from './BottomNavigation';
@@ -17,10 +23,11 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Navigation State
-    const [activeTab, setActiveTab] = useState('HOME');
+    const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || 'HOME');
 
     // Data State
     const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
@@ -166,59 +173,74 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
 
     return (
         <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative pb-20 border-x border-gray-100">
-            <Header
-                onSearch={handleSearch}
-                onFilterClick={() => setIsFilterOpen(true)}
-                isScrolled={isScrolled}
-            />
+            {activeTab === 'HOME' && (
+                <>
+                    <Header
+                        onSearch={handleSearch}
+                        onFilterClick={() => setIsFilterOpen(true)}
+                        isScrolled={isScrolled}
+                    />
 
-            {!searchQuery && <BannerCarousel />}
+                    {!searchQuery && <BannerCarousel />}
 
-            <main className="px-4 py-2">
-                {!searchQuery && (
-                    <div className="mb-6 mt-2">
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="w-1.5 h-6 bg-cherry rounded-full"></span>
-                            <h2 className="text-xl font-black text-ink tracking-tight">지금 뜨는 체리픽</h2>
+                    {!searchQuery && (
+                        <TrendingSection
+                            products={allProducts.slice(0, 8)} // Mock trending data
+                            onProductClick={(p) => navigate(`/product/${p.id}`)}
+                        />
+                    )}
+
+                    <div className="px-4 py-2">
+                        {/* Normal List Section Title */}
+                        <div className="mb-3 mt-2">
+                            <h3 className="text-lg font-bold text-ink">체리픽</h3>
                         </div>
-                    </div>
-                )}
 
-                {visibleProducts.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-6">
-                        {visibleProducts.map(product => (
-                            <ProductCard
-                                key={product.id}
-                                product={product}
-                                onClick={(p) => navigate(`/product/${p.id}`)}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                        <div className="w-20 h-20 bg-white/50 rounded-full flex items-center justify-center mb-4">
-                            <Sparkles size={32} className="text-cherry/50" />
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-800">검색 결과가 없어요</h3>
-                        <p className="text-sm text-gray-500 mt-1">다른 키워드나 필터로 다시 찾아보세요.</p>
-                    </div>
-                )}
+                        {visibleProducts.length > 0 ? (
+                            <div className="flex flex-col">
+                                {visibleProducts.map(product => (
+                                    <ProductRow
+                                        key={product.id}
+                                        product={product}
+                                        onClick={(p) => navigate(`/product/${p.id}`)}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                    <Sparkles size={32} className="text-gray-300" />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-800">검색 결과가 없어요</h3>
+                                <p className="text-sm text-gray-500 mt-1">다른 키워드나 필터로 다시 찾아보세요.</p>
+                            </div>
+                        )}
 
-                {isLoadingMore && (
-                    <div className="py-8 flex justify-center w-full">
-                        <Loader2 size={24} className="animate-spin text-cherry" />
+                        {isLoadingMore && (
+                            <div className="py-8 flex justify-center w-full">
+                                <Loader2 size={24} className="animate-spin text-cherry" />
+                            </div>
+                        )}
                     </div>
-                )}
-            </main>
+
+                    <ProductWriteButton />
+                </>
+            )}
+
+            {activeTab === 'CHAT' && <ChatList />}
+            {activeTab === 'LIKES' && <WishList products={allProducts} />}
+            {activeTab === 'MY' && <MyPage />}
 
             <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
-            <FilterSheet
-                isOpen={isFilterOpen}
-                onClose={() => setIsFilterOpen(false)}
-                currentFilter={currentFilter}
-                onApply={updateFilter}
-            />
+            {activeTab === 'HOME' && (
+                <FilterSheet
+                    isOpen={isFilterOpen}
+                    onClose={() => setIsFilterOpen(false)}
+                    currentFilter={currentFilter}
+                    onApply={updateFilter}
+                />
+            )}
         </div>
     );
 };
