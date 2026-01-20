@@ -27,15 +27,11 @@ export const ProductWrite: React.FC = () => {
 
     // UI States
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-    const [showExitConfirm, setShowExitConfirm] = useState(false);
 
-    // Derived State for Validation
+    // Derived State for Validation (Simplified for MVP)
     const isValid =
-        images.length > 0 &&
         title.trim().length > 0 &&
-        category.length > 0 &&
-        (isFreeSharing || price.length > 0) && // Price required unless free sharing
-        description.trim().length > 0 &&
+        (isFreeSharing || price.length > 0) &&
         tradeTypes.length > 0;
 
     // --- Effects ---
@@ -50,15 +46,7 @@ export const ProductWrite: React.FC = () => {
     // --- Handlers ---
 
     const handleBack = () => {
-        if (images.length > 0 || title || category || (price && price !== '0') || description) {
-            setShowExitConfirm(true);
-        } else {
-            navigate(-1);
-        }
-    };
-
-    const confirmExit = () => {
-        navigate(ROUTES.ROOT);
+        navigate(-1);
     };
 
     const handleImageUpload = () => {
@@ -254,7 +242,7 @@ export const ProductWrite: React.FC = () => {
                         </div>
                         <div className="overflow-y-auto p-4">
                             <div className="grid grid-cols-1 gap-2">
-                                {CATEGORIES.filter(c => c !== '추천').map((cat) => (
+                                {CATEGORIES.map((cat) => (
                                     <button
                                         key={cat}
                                         onClick={() => {
@@ -267,36 +255,6 @@ export const ProductWrite: React.FC = () => {
                                     </button>
                                 ))}
                             </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Exit Confirmation Modal */}
-            {showExitConfirm && (
-                <div className="absolute inset-0 z-[60] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-6 animate-[fadeIn_0.2s_ease-out]">
-                    <div className="bg-white rounded-[24px] p-8 w-full max-w-[320px] shadow-2xl animate-[scaleIn_0.2s_ease-out] transform transition-all">
-                        <div className="flex justify-center mb-4">
-                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-2xl">🤔</div>
-                        </div>
-                        <h3 className="text-xl font-black text-ink mb-3 text-center">작성을 취소할까요?</h3>
-                        <p className="text-gray-500 text-center mb-8 text-sm leading-relaxed">
-                            지금 나가면 작성 중인 내용이<br />
-                            모두 사라져요!
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={confirmExit}
-                                className="flex-1 py-3.5 rounded-xl font-bold bg-gray-100 text-gray-500 hover:bg-gray-200"
-                            >
-                                나가기
-                            </button>
-                            <button
-                                onClick={() => setShowExitConfirm(false)}
-                                className="flex-1 py-3.5 rounded-xl font-bold bg-cherry text-white shadow-lg shadow-cherry/20"
-                            >
-                                계속 쓰기
-                            </button>
                         </div>
                     </div>
                 </div>

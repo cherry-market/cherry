@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Camera, Sparkles, RefreshCw, ChevronRight, Check, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Camera, Sparkles, RefreshCw, X, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Input, TextArea } from '@/shared/ui/Input';
 import {
     AI_WRITE_GENERATION_DELAY_MS,
     AI_WRITE_MOCK_IMAGE_URL,
     AI_WRITE_MOCK_RESULT,
-    AI_WRITE_SUCCESS_MESSAGE,
     PRODUCT_IMAGE_UPLOAD_LIMIT,
     PRODUCT_WRITE_MAX_IMAGES_MESSAGE
 } from '../constants';
 import { ROUTES } from '@/shared/constants/routes';
 
-type WritingStep = 'INPUT' | 'CONFIG' | 'ANALYSIS' | 'RESULT';
+type WritingStep = 'FORM' | 'ANALYSIS' | 'RESULT';
 
 export const AIProductWrite: React.FC = () => {
     const navigate = useNavigate();
-    const [currentStep, setCurrentStep] = useState<WritingStep>('INPUT');
+    const [currentStep, setCurrentStep] = useState<WritingStep>('FORM');
 
     // Data States
     const [images, setImages] = useState<string[]>([]);
@@ -25,19 +24,11 @@ export const AIProductWrite: React.FC = () => {
     const [personality, setPersonality] = useState('FRIENDLY');
     const [tone, setTone] = useState('POLITE');
     const [generatedResult, setGeneratedResult] = useState('');
-    const [isGenerating, setIsGenerating] = useState(false);
 
     // Navigation Handlers
-    const goNext = () => {
-        if (currentStep === 'INPUT') setCurrentStep('CONFIG');
-        else if (currentStep === 'CONFIG') handleGenerate(); // Go to generation
-        else if (currentStep === 'ANALYSIS') setCurrentStep('RESULT');
-    };
-
     const goBack = () => {
-        if (currentStep === 'INPUT') navigate(-1);
-        else if (currentStep === 'CONFIG') setCurrentStep('INPUT');
-        else if (currentStep === 'RESULT') setCurrentStep('CONFIG'); // Re-config
+        if (currentStep === 'FORM') navigate(-1);
+        else if (currentStep === 'RESULT') setCurrentStep('FORM');
     };
 
     const handleImageUpload = () => {
@@ -45,7 +36,6 @@ export const AIProductWrite: React.FC = () => {
             alert(PRODUCT_WRITE_MAX_IMAGES_MESSAGE);
             return;
         }
-        // Mock upload
         setImages([...images, AI_WRITE_MOCK_IMAGE_URL]);
     };
 
@@ -55,18 +45,14 @@ export const AIProductWrite: React.FC = () => {
 
     const handleGenerate = () => {
         setCurrentStep('ANALYSIS');
-        setIsGenerating(true);
         // Simulate AI delay
         setTimeout(() => {
-            setIsGenerating(false);
             setGeneratedResult(AI_WRITE_MOCK_RESULT);
             setCurrentStep('RESULT');
         }, AI_WRITE_GENERATION_DELAY_MS);
     };
 
-    const handleRegister = () => {
-        // Mock registration
-        alert(AI_WRITE_SUCCESS_MESSAGE);
+    const handleComplete = () => {
         navigate(ROUTES.ROOT);
     };
 
@@ -83,17 +69,15 @@ export const AIProductWrite: React.FC = () => {
                         AI 글 작성
                     </h1>
                 </div>
-                {/* Step Indicator (Optional) */}
                 <div className="text-xs font-bold text-gray-400">
-                    {currentStep === 'INPUT' && '1/3'}
-                    {currentStep === 'CONFIG' && '2/3'}
-                    {(currentStep === 'ANALYSIS' || currentStep === 'RESULT') && '3/3'}
+                    {currentStep === 'FORM' && '1/2'}
+                    {(currentStep === 'ANALYSIS' || currentStep === 'RESULT') && '2/2'}
                 </div>
             </header>
 
             <main className="flex-1 flex flex-col px-5 py-6 gap-6 overflow-y-auto">
-                {currentStep === 'INPUT' && (
-                    <StepInput
+                {currentStep === 'FORM' && (
+                    <StepForm
                         images={images}
                         onUpload={handleImageUpload}
                         description={description}
@@ -101,11 +85,6 @@ export const AIProductWrite: React.FC = () => {
                         extraDesc={extraDesc}
                         onExtraDescChange={setExtraDesc}
                         onRemove={handleRemoveImage}
-                    />
-                )}
-
-                {currentStep === 'CONFIG' && (
-                    <StepConfig
                         personality={personality}
                         setPersonality={setPersonality}
                         tone={tone}
@@ -135,33 +114,24 @@ export const AIProductWrite: React.FC = () => {
                                 onClick={goBack}
                                 className="flex-1 py-4 rounded-xl font-bold bg-gray-100 text-gray-600 active:scale-95 transition-transform"
                             >
-                                이전으로
+                                다시 설정
                             </button>
                             <button
-                                onClick={handleRegister}
+                                onClick={handleComplete}
                                 className="flex-[2] py-4 rounded-xl font-bold bg-cherry text-white shadow-lg shadow-cherry/30 active:scale-95 transition-transform flex items-center justify-center gap-2"
                             >
                                 <Check size={20} />
-                                등록하기
+                                사용하기
                             </button>
                         </div>
                     ) : (
                         <button
-                            onClick={goNext}
-                            disabled={currentStep === 'INPUT' && (images.length === 0 || description.trim().length === 0)}
+                            onClick={handleGenerate}
+                            disabled={images.length === 0 && description.trim().length === 0} // Relaxed: require either image OR desc
                             className="w-full bg-cherry text-white font-black py-4 rounded-xl shadow-lg shadow-cherry/30 active:scale-95 transition-all text-lg flex justify-center items-center gap-2 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:pointer-events-none"
                         >
-                            {currentStep === 'CONFIG' ? (
-                                <>
-                                    <Sparkles strokeWidth={2.5} size={20} />
-                                    AI로 글 작성하기
-                                </>
-                            ) : (
-                                <>
-                                    다음
-                                    <ChevronRight strokeWidth={3} size={20} />
-                                </>
-                            )}
+                            <Sparkles strokeWidth={2.5} size={20} />
+                            AI로 글 생성하기
                         </button>
                     )}
                 </div>
@@ -172,10 +142,14 @@ export const AIProductWrite: React.FC = () => {
 
 // --- Sub-components for Steps ---
 
-const StepInput = ({ images, onUpload, description, onDescChange, extraDesc, onExtraDescChange, onRemove }: any) => (
+const StepForm = ({
+    images, onUpload, description, onDescChange, extraDesc, onExtraDescChange, onRemove,
+    personality, setPersonality, tone, setTone
+}: any) => (
     <div className="flex flex-col gap-6 animate-[fadeIn_0.3s_ease-out]">
+        {/* Image Upload Section */}
         <section className="bg-white p-5 rounded-[20px] shadow-sm">
-            <h3 className="text-sm font-bold text-gray-500 mb-3">상품 사진을 올려주세요</h3>
+            <h3 className="text-sm font-bold text-gray-500 mb-3">상품 사진 (선택)</h3>
             <div className="flex gap-4 overflow-x-auto no-scrollbar">
                 <button
                     onClick={onUpload}
@@ -198,75 +172,57 @@ const StepInput = ({ images, onUpload, description, onDescChange, extraDesc, onE
             </div>
         </section>
 
+        {/* Description Section */}
         <section className="bg-white p-5 rounded-[20px] shadow-sm flex flex-col gap-4">
-            <div>
-                <Input
-                    label="상품에 대해 간단히 알려주세요"
-                    value={description}
-                    onChange={(e) => onDescChange(e.target.value)}
-                    placeholder="예: 아이브 장원영 포카, 미개봉 앨범 💿"
-                />
-            </div>
-            <div>
-                <TextArea
-                    label="추가 설명 (선택)"
-                    value={extraDesc}
-                    onChange={(e) => onExtraDescChange(e.target.value)}
-                    placeholder="강조하고 싶은 내용을 적어주세요 (최대 200자)"
-                    maxLength={200}
-                    className="h-32"
-                />
-                <p className="text-right text-xs text-gray-400 mt-1">{extraDesc.length}/200</p>
-            </div>
+            <Input
+                label="상품명 / 특징"
+                value={description}
+                onChange={(e) => onDescChange(e.target.value)}
+                placeholder="예: 아이브 장원영 포카, 미개봉 앨범"
+            />
+            <TextArea
+                label="추가 요구사항 (선택)"
+                value={extraDesc}
+                onChange={(e) => onExtraDescChange(e.target.value)}
+                placeholder="강조하고 싶은 내용을 적어주세요"
+                className="h-24"
+            />
         </section>
-    </div>
-);
 
-const StepConfig = ({ personality, setPersonality, tone, setTone }: any) => (
-    <div className="flex flex-col gap-6 animate-[fadeIn_0.3s_ease-out]">
-        <section className="bg-white p-5 rounded-[20px] shadow-sm">
-            <h3 className="text-lg font-bold text-ink mb-6">
-                어떤 느낌으로 써드릴까요? 🍒
-            </h3>
-
-            <div className="space-y-6">
-                <div>
-                    <p className="text-sm font-bold text-gray-400 mb-3">AI 성격</p>
-                    <div className="flex gap-3">
-                        {['친근함', '귀여움', '깔끔함'].map(item => (
-                            <button
-                                key={item}
-                                onClick={() => setPersonality(item)}
-                                className={`flex-1 py-3 rounded-xl text-sm font-bold border transition-all ${personality === item ? 'bg-cherry text-white border-cherry shadow-md shadow-cherry/20' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'}`}
-                            >
-                                {item}
-                            </button>
-                        ))}
-                    </div>
+        {/* Tone & Personality Section - Combined and Simplified */}
+        <section className="bg-white p-5 rounded-[20px] shadow-sm space-y-6">
+            <div>
+                <p className="text-sm font-bold text-gray-400 mb-3">AI 성격</p>
+                <div className="flex gap-3">
+                    {['친근함', '귀여움', '깔끔함'].map(item => (
+                        <button
+                            key={item}
+                            onClick={() => setPersonality(item)}
+                            className={`flex-1 py-3 rounded-xl text-sm font-bold border transition-all ${personality === item ? 'bg-cherry text-white border-cherry shadow-md shadow-cherry/20' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'}`}
+                        >
+                            {item}
+                        </button>
+                    ))}
                 </div>
+            </div>
 
-                <div>
-                    <p className="text-sm font-bold text-gray-400 mb-3">말투 선택</p>
-                    <div className="grid grid-cols-1 gap-3">
-                        <SelectionOption
-                            label="음슴체"
-                            desc="군더더기 없이 깔끔하게 (상태 좋음, 직거래 가능)"
-                            isSelected={tone === 'SHORT'}
-                            onClick={() => setTone('SHORT')}
-                        />
-                        <SelectionOption
-                            label="깔끔한 존댓말"
-                            desc="예의 바르고 정중하게 (상태 좋아요, 문의 주세요)"
-                            isSelected={tone === 'POLITE'}
-                            onClick={() => setTone('POLITE')}
-                        />
-                        <SelectionOption
-                            label="여성스러운 말투"
-                            desc="부드럽고 친절하게 (상태 좋아용, 연락주세요~)"
-                            isSelected={tone === 'SOFT'}
-                            onClick={() => setTone('SOFT')}
-                        />
-                    </div>
+            <div>
+                <p className="text-sm font-bold text-gray-400 mb-3">말투</p>
+                <div className="grid grid-cols-1 gap-2">
+                    {[
+                        { id: 'SHORT', label: '음슴체 (상태 좋음)' },
+                        { id: 'POLITE', label: '존댓말 (상태 좋아요)' },
+                        { id: 'SOFT', label: '부드럽게 (상태 좋아용)' }
+                    ].map((opt) => (
+                        <div
+                            key={opt.id}
+                            onClick={() => setTone(opt.id)}
+                            className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between transition-all active:scale-[0.99] ${tone === opt.id ? 'border-cherry bg-cherry/5 text-cherry ring-1 ring-cherry' : 'border-gray-200 hover:bg-gray-50 text-ink'}`}
+                        >
+                            <span className="font-bold text-sm">{opt.label}</span>
+                            {tone === opt.id && <div className="w-2 h-2 bg-cherry rounded-full" />}
+                        </div>
+                    ))}
                 </div>
             </div>
         </section>
@@ -287,46 +243,44 @@ const StepAnalysis = () => (
     </div>
 );
 
-const StepResult = ({ result, setResult, onRegenerate }: any) => (
-    <div className="flex flex-col gap-6 animate-[fadeIn_0.3s_ease-out]">
-        <section className="bg-white p-5 rounded-[20px] shadow-sm border-2 border-cherry/10">
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-bold text-cherry flex items-center gap-2">
-                    <Sparkles size={16} />
-                    AI가 작성한 글이에요
-                </h3>
-                <button
-                    onClick={onRegenerate}
-                    className="text-xs font-bold text-gray-400 hover:text-cherry flex items-center gap-1"
-                >
-                    <RefreshCw size={12} />
-                    다시 만들기
-                </button>
-            </div>
+const StepResult = ({ result, setResult, onRegenerate }: any) => {
+    const handleCopy = () => {
+        navigator.clipboard.writeText(result);
+        alert('내용이 복사되었습니다!');
+    };
 
-            <TextArea
-                value={result}
-                onChange={(e) => setResult(e.target.value)}
-                className="h-80 text-base text-ink focus:border-cherry/30"
-            />
-            <p className="text-xs text-gray-400 mt-2 text-right">
-                내용을 자유롭게 수정할 수 있어요
-            </p>
-        </section>
-    </div>
-);
+    return (
+        <div className="flex flex-col gap-6 animate-[fadeIn_0.3s_ease-out]">
+            <section className="bg-white p-5 rounded-[20px] shadow-sm border-2 border-cherry/10">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-sm font-bold text-cherry flex items-center gap-2">
+                        <Sparkles size={16} />
+                        AI 생성 결과
+                    </h3>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleCopy} // Added Copy Feature
+                            className="text-xs font-bold text-gray-400 hover:text-ink flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <Copy size={12} />
+                            복사
+                        </button>
+                        <button
+                            onClick={onRegenerate}
+                            className="text-xs font-bold text-gray-400 hover:text-cherry flex items-center gap-1 px-2 py-1 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <RefreshCw size={12} />
+                            다시
+                        </button>
+                    </div>
+                </div>
 
-const SelectionOption = ({ label, desc, isSelected, onClick }: any) => (
-    <div
-        onClick={onClick}
-        className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all active:scale-[0.98] ${isSelected ? 'border-cherry bg-cherry/5 ring-1 ring-cherry' : 'border-gray-200 hover:bg-gray-50'}`}
-    >
-        <div className={`w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center shrink-0 ${isSelected ? 'border-cherry' : 'border-gray-300'}`}>
-            {isSelected && <div className="w-2.5 h-2.5 bg-cherry rounded-full" />}
+                <TextArea
+                    value={result}
+                    onChange={(e) => setResult(e.target.value)}
+                    className="h-80 text-base text-ink focus:border-cherry/30"
+                />
+            </section>
         </div>
-        <div>
-            <p className={`text-base font-bold ${isSelected ? 'text-cherry' : 'text-ink'}`}>{label}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
-        </div>
-    </div>
-);
+    );
+};
