@@ -82,13 +82,13 @@ export const LoginPage: React.FC = () => {
                         className="h-12"
                     />
 
-                    <button
-                        className="w-full h-12 bg-cherry text-white font-bold rounded-[6px] text-[15px] active:scale-[0.98] transition-transform mt-2 disabled:bg-gray-300"
+                    <Button
+                        fullWidth
                         onClick={handleLoginSuccess}
                         disabled={!email || !password}
                     >
                         로그인
-                    </button>
+                    </Button>
 
                     <div className="flex justify-between items-center text-xs text-gray-500 mt-3 px-1">
                         <label className="flex items-center gap-1.5 cursor-pointer">
@@ -105,9 +105,11 @@ export const LoginPage: React.FC = () => {
 
                 {/* Social Login */}
                 <div className="w-full mt-10 space-y-3">
-                    <button
+                    <Button
+                        variant="social"
+                        fullWidth
                         onClick={handleGoogleLogin}
-                        className="w-full h-12 bg-white border border-gray-200 rounded-[6px] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform hover:bg-gray-50 text-black font-medium relative"
+                        className="flex gap-2"
                     >
                         <img
                             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
@@ -115,7 +117,7 @@ export const LoginPage: React.FC = () => {
                             className="w-5 h-5"
                         />
                         Google로 로그인
-                    </button>
+                    </Button>
                     {/* Placeholder for Kakao/Apple if needed in future to match visual density of Musinsa
                     <button className="w-full h-12 bg-[#FEE500] rounded-[6px] flex items-center justify-center gap-2 text-[#000000] font-medium text-sm">
                         <MessageCircle size={18} fill="currentColor" /> 카카오로 시작하기
@@ -125,12 +127,13 @@ export const LoginPage: React.FC = () => {
 
                 {/* Bottom Signup Area */}
                 <div className="mt-auto w-full pt-10 flex flex-col items-center">
-                    <button
-                        className="w-fit px-6 py-2.5 bg-white border border-cherry rounded-[6px] text-sm text-cherry font-medium hover:bg-red-50 active:bg-red-100 transition-colors"
+                    <Button
+                        variant="outline"
+                        size="md"
                         onClick={() => navigate(ROUTES.SIGNUP, { state: { fromTab } })}
                     >
                         이메일 회원가입
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

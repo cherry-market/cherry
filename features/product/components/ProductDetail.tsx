@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Share2, MoreVertical, MessageCircle, Sparkles, Loader2, RefreshCw, Cherry } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Share2, MoreVertical, MessageCircle, Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Added
 import type { Product } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { Avatar } from '@/shared/ui/Avatar';
 import { Button } from '@/shared/ui/Button';
+import { CherryIcon } from '@/shared/ui/CherryIcon';
+import { useProductLike } from '../hooks/useProductLike';
 import { generateGoodsImage } from '@/shared/services/geminiService';
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'; // Added
+import { useAuthStore } from '@/features/auth/model/authStore'; // Added
+import { ROUTES } from '@/shared/constants/routes'; // Added
 
 interface ProductDetailProps {
   product: Product;
@@ -12,7 +18,28 @@ interface ProductDetailProps {
 }
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack }) => {
+  const navigate = useNavigate(); // Added
+  const { isLoggedIn } = useAuthStore(); // Added
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // Like Hook
+  const { isLiked, toggleLike, loginAlertOpen, closeLoginAlert, confirmLogin } = useProductLike(product);
+
+  // Chat Logic
+  const [chatAlertOpen, setChatAlertOpen] = useState(false);
+
+  const handleChat = () => {
+    if (!isLoggedIn) {
+      setChatAlertOpen(true);
+      return;
+    }
+    // Navigate to Chat (Mock)
+    navigate(ROUTES.CHAT_DETAIL(product.id)); // Using product ID as chat ID for mock
+  };
+
+  const handleLinkCopied = () => {
+    // Mock share
+    alert("링크가 복사되었습니다!");
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F6FA] flex flex-col pb-32 animate-[fadeIn_0.3s_ease-out] relative">
@@ -22,7 +49,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
           <ArrowLeft size={20} />
         </Button>
         <div className="flex gap-2">
-          <Button variant="icon">
+          <Button variant="icon" onClick={handleLinkCopied}>
             <Share2 size={20} />
           </Button>
           <Button variant="icon">
@@ -150,9 +177,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
       {/* Sticky Bottom Bar - Centered */}
       <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-[430px] bg-white/80 backdrop-blur-xl border-t border-gray-200 p-4 pb-safe flex items-center justify-between z-30 shadow-[0_-8px_30px_rgba(0,0,0,0.05)]">
         <div className="flex items-center gap-2">
-          <button className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95 flex flex-col items-center">
-            <Cherry size={24} />
-            <span className="text-[9px] font-bold">픽</span>
+          <button
+            onClick={toggleLike}
+            className="p-3 rounded-full bg-gray-100 text-gray-400 hover:text-cherry hover:bg-cherry/10 transition-colors active:scale-95 flex flex-col items-center"
+          >
+            <CherryIcon isLiked={isLiked} size={24} />
+            <span className={`text-[9px] font-bold ${isLiked ? 'text-cherry' : ''}`}>픽</span>
           </button>
           <div className="pl-2 border-l border-gray-200">
             <p className="text-xl font-black text-text">{product.price.toLocaleString()} <span className="text-sm">원</span></p>
@@ -160,11 +190,46 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
           </div>
         </div>
 
-        <Button className="pl-6 pr-8">
-          <MessageCircle size={18} className="mr-2" />
-          채팅하기
-        </Button>
+        <div
+          onClick={handleChat}
+          className="relative z-50 cursor-pointer flex items-center"
+        >
+          <Button
+            variant="primary"
+            size="md"
+            className="flex items-center gap-2"
+          >
+            <MessageCircle size={18} />
+            채팅하기
+          </Button>
+        </div>
       </div>
+
+      {/* Login Confirm Dialogs */}
+      {/* For Like */}
+      <ConfirmDialog
+        key="like-confirm"
+        isOpen={loginAlertOpen}
+        title="로그인이 필요해요"
+        description="관심 상품으로 등록하려면 로그인이 필요합니다."
+        confirmLabel="로그인하기"
+        onConfirm={confirmLogin}
+        onCancel={closeLoginAlert}
+      />
+
+      {/* For Chat */}
+      <ConfirmDialog
+        key="chat-confirm"
+        isOpen={chatAlertOpen}
+        title="채팅하려면 로그인이 필요해요"
+        description="판매자와 대화하려면 로그인이 필요합니다."
+        confirmLabel="로그인하기"
+        onConfirm={() => {
+          setChatAlertOpen(false);
+          navigate(ROUTES.LOGIN);
+        }}
+        onCancel={() => setChatAlertOpen(false)}
+      />
 
       <style>{`
         @keyframes fadeIn {

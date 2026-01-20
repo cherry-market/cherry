@@ -134,7 +134,8 @@ export const SignupPage: React.FC = () => {
                 <div className="mt-4">
                     <Button
                         variant="primary"
-                        className="w-full py-4 text-lg"
+                        fullWidth
+                        size="lg"
                         disabled={!isValid}
                         onClick={handleSubmit}
                     >

@@ -3,6 +3,7 @@ import { ArrowLeft, Camera, Check, ChevronRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '@/shared/constants/categories';
 import { Input, TextArea } from '@/shared/ui/Input';
+import { Button } from '@/shared/ui/Button';
 import {
     PRODUCT_IMAGE_UPLOAD_LIMIT,
     PRODUCT_WRITE_MAX_IMAGES_MESSAGE,
@@ -220,14 +221,17 @@ export const ProductWrite: React.FC = () => {
 
             {/* Sticky Bottom Button */}
             <div className="p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-100 sticky bottom-0 shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-                <button
+                <Button
+                    fullWidth
+                    size="lg"
                     onClick={handleRegister}
                     disabled={!isValid}
-                    className="w-full bg-cherry text-white font-black py-4 rounded-xl shadow-lg shadow-cherry/30 active:scale-95 transition-all text-lg flex justify-center items-center gap-2 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:pointer-events-none"
+                    variant="primary"
+                    className="flex gap-2 text-lg"
                 >
                     <Check size={20} />
                     등록하기
-                </button>
+                </Button>
             </div>
 
             {/* Category Modal (BottomSheet style) */}

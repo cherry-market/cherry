@@ -10,7 +10,12 @@ export default {
     theme: {
         extend: {
             colors: {
-                cherry: '#FF2F6E',
+                cherry: {
+                    DEFAULT: '#FF2F6E',
+                    dark: '#C20055',
+                    neon: '#FF4D82',
+                    light: '#FFEAF2',
+                },
                 ink: '#1A1A1A',
                 gray: {
                     50: '#F8F9FA',

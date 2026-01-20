@@ -175,11 +175,7 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
     const { isLoggedIn } = useAuthStore();
 
     const handleTabChange = (tab: string) => {
-        if ((tab === MAIN_TABS.MY || tab === MAIN_TABS.CHAT || tab === MAIN_TABS.LIKES) && !isLoggedIn) {
-            navigate(ROUTES.LOGIN, { state: { fromTab: tab } });
-            return;
-        }
-
+        // Removed automatic login redirection to support LoginPrompt UI in tabs
         setActiveTab(tab);
         if (tab === MAIN_TABS.HOME) {
             window.scrollTo(0, 0);

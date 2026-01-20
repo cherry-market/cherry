@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { MessageCircle, Cherry } from 'lucide-react';
+import React from 'react';
+import { CherryIcon } from '@/shared/ui/CherryIcon';
 import type { Product } from '../types';
 import { StatusBadge } from './StatusBadge';
+import { useProductLike } from '../hooks/useProductLike';
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 
 interface ProductRowProps {
     product: Product;
@@ -9,17 +11,12 @@ interface ProductRowProps {
 }
 
 export const ProductRow: React.FC<ProductRowProps> = ({ product, onClick }) => {
-    const [isLiked, setIsLiked] = useState(false);
-
-    const handleLike = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsLiked(!isLiked);
-    };
+    const { isLiked, toggleLike, likesCount, loginAlertOpen, closeLoginAlert, confirmLogin } = useProductLike(product);
 
     return (
         <div
             onClick={() => onClick(product)}
-            className="flex py-4 px-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors bg-white"
+            className="flex py-4 px-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors bg-white relative"
         >
             {/* Image */}
             <div className="relative w-28 h-28 flex-shrink-0 rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
@@ -61,13 +58,25 @@ export const ProductRow: React.FC<ProductRowProps> = ({ product, onClick }) => {
                         </span>
                     </div>
 
-                    {/* Like Count - Visual Only as per RFP */}
-                    <div className="flex items-center gap-1 min-w-[32px] justify-end">
-                        <Cherry size={14} className={product.likes > 0 ? "text-gray-400" : "text-gray-300"} />
-                        <span className="text-xs text-gray-400">{product.likes}</span>
-                    </div>
+                    {/* Like Count - Visual Only as per RFP -> Now Interactive */}
+                    <button
+                        onClick={toggleLike}
+                        className="flex items-center gap-1 min-w-[32px] justify-end p-2 -mr-2 rounded-full hover:bg-gray-100 active:scale-95 transition-all"
+                    >
+                        <CherryIcon isLiked={isLiked} size={16} className={isLiked ? "" : "text-gray-300"} />
+                        <span className={`text-xs ${isLiked ? 'text-cherry font-bold' : 'text-gray-400'}`}>{likesCount}</span>
+                    </button>
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={loginAlertOpen}
+                title="로그인이 필요해요"
+                description="관심 상품으로 등록하려면 로그인이 필요합니다."
+                confirmLabel="로그인하기"
+                onConfirm={confirmLogin}
+                onCancel={closeLoginAlert}
+            />
         </div>
     );
 };

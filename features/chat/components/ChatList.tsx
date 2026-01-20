@@ -1,15 +1,31 @@
 import React, { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { Avatar } from '@/shared/ui/Avatar';
 import { CHAT_FILTERS } from '../constants';
 import { MOCK_CHATS } from '../mockData';
 import { ROUTES } from '@/shared/constants/routes';
+import { useAuthStore } from '@/features/auth/model/authStore';
+import { LoginPrompt } from '@/shared/ui/LoginPrompt';
 
 export const ChatList: React.FC = () => {
     const navigate = useNavigate();
     const [filter, setFilter] = useState('All');
+    const { isLoggedIn } = useAuthStore();
+
+    if (!isLoggedIn) {
+        return (
+            <div className="bg-white min-h-screen">
+                <PageHeader title="채팅" />
+                <LoginPrompt
+                    title="채팅은 로그인 후 이용할 수 있어요"
+                    description="이웃과 대화하고 즐거운 거래를 경험해보세요."
+                    icon={<MessageCircle size={48} className="text-gray-300" />}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="pb-24 bg-white min-h-screen">

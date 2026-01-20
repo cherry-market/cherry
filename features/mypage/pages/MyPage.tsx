@@ -5,12 +5,24 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 import { Avatar } from '@/shared/ui/Avatar';
 import { useAuthStore } from '@/features/auth/model/authStore';
 import { ROUTES } from '@/shared/constants/routes';
+import { LoginPrompt } from '@/shared/ui/LoginPrompt';
 
 export const MyPage: React.FC = () => {
     const navigate = useNavigate();
-    const { user, logout } = useAuthStore();
+    const { user, logout, isLoggedIn } = useAuthStore();
 
-    if (!user) return null;
+    if (!isLoggedIn || !user) {
+        return (
+            <div className="bg-white min-h-screen">
+                <PageHeader title="마이페이지" />
+                <LoginPrompt
+                    title="로그인이 필요한 서비스입니다"
+                    description="가입하고 체리마켓의 이웃이 되어보세요."
+                    icon={<User size={48} className="text-gray-300" />}
+                />
+            </div>
+        );
+    }
 
     const handleLogout = () => {
         logout();

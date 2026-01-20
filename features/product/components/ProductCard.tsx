@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Cherry } from 'lucide-react';
+import React from 'react';
+import { CherryIcon } from '@/shared/ui/CherryIcon';
 import type { Product } from '../types';
 import { StatusBadge } from './StatusBadge';
+import { useProductLike } from '../hooks/useProductLike';
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 
 interface ProductCardProps {
   product: Product;
@@ -9,12 +11,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
-  const [isLiked, setIsLiked] = useState(false);
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsLiked(!isLiked);
-  };
+  const { isLiked, toggleLike, likesCount, loginAlertOpen, closeLoginAlert, confirmLogin } = useProductLike(product);
 
   return (
     <div
@@ -72,12 +69,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
           </div>
 
           {/* Like Count */}
-          <div className="flex items-center gap-1 text-silver-metal">
-            <Cherry size={10} strokeWidth={2.5} className={isLiked ? 'text-cherry' : ''} />
-            <span className={`text-[10px] ${isLiked ? 'text-cherry' : ''}`}>{product.likes + (isLiked ? 1 : 0)}</span>
-          </div>
+          <button
+            onClick={toggleLike}
+            className="flex items-center gap-1 text-silver-metal hover:text-cherry transition-colors p-1 -mr-1 rounded-full active:scale-95"
+          >
+            <CherryIcon isLiked={isLiked} size={14} strokeWidth={2.5} />
+            <span className={`text-[10px] font-bold ${isLiked ? 'text-cherry' : ''}`}>{likesCount}</span>
+          </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={loginAlertOpen}
+        title="로그인이 필요해요"
+        description="관심 상품으로 등록하려면 로그인이 필요합니다."
+        confirmLabel="로그인하기"
+        onConfirm={confirmLogin}
+        onCancel={closeLoginAlert}
+      />
     </div>
   );
 };

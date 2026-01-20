@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Camera, Sparkles, RefreshCw, X, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Input, TextArea } from '@/shared/ui/Input';
+import { Button } from '@/shared/ui/Button';
 import {
     AI_WRITE_GENERATION_DELAY_MS,
     AI_WRITE_MOCK_IMAGE_URL,
@@ -110,29 +111,34 @@ export const AIProductWrite: React.FC = () => {
                 <div className="p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] bg-white border-t border-gray-100 sticky bottom-0 shrink-0">
                     {currentStep === 'RESULT' ? (
                         <div className="flex gap-3">
-                            <button
+                            <Button
+                                variant="secondary"
                                 onClick={goBack}
-                                className="flex-1 py-4 rounded-xl font-bold bg-gray-100 text-gray-600 active:scale-95 transition-transform"
+                                className="flex-1"
                             >
                                 다시 설정
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="primary"
                                 onClick={handleComplete}
-                                className="flex-[2] py-4 rounded-xl font-bold bg-cherry text-white shadow-lg shadow-cherry/30 active:scale-95 transition-transform flex items-center justify-center gap-2"
+                                className="flex-[2] flex gap-2"
                             >
                                 <Check size={20} />
                                 사용하기
-                            </button>
+                            </Button>
                         </div>
                     ) : (
-                        <button
+                        <Button
+                            fullWidth
+                            variant="primary"
                             onClick={handleGenerate}
                             disabled={images.length === 0 && description.trim().length === 0} // Relaxed: require either image OR desc
-                            className="w-full bg-cherry text-white font-black py-4 rounded-xl shadow-lg shadow-cherry/30 active:scale-95 transition-all text-lg flex justify-center items-center gap-2 disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:pointer-events-none"
+                            size="lg"
+                            className="text-lg flex gap-2"
                         >
                             <Sparkles strokeWidth={2.5} size={20} />
                             AI로 글 생성하기
-                        </button>
+                        </Button>
                     )}
                 </div>
             )}

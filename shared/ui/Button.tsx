@@ -1,39 +1,39 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'icon';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'icon' | 'outline' | 'social';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
+export const Button: React.FC<ButtonProps> = ({
+  children,
+  variant = 'primary',
+  size = 'md',
   fullWidth = false,
   className = '',
-  ...props 
+  ...props
 }) => {
   // Base: Solid Object feel
-  const baseStyle = "inline-flex items-center justify-center font-bold rounded-[16px] tactile disabled:opacity-50 disabled:pointer-events-none transition-all relative overflow-hidden";
-  
+  const baseStyle = "inline-flex items-center justify-center font-bold rounded-[16px] tactile disabled:opacity-50 disabled:pointer-events-none transition-all relative overflow-hidden active:scale-[0.98]";
+
   const variants = {
     // Candy-like glossy pink
     primary: `
       bg-cherry text-white 
-      shadow-[0_4px_0_0_#C20055,0_8px_16px_rgba(255,46,136,0.4)]
+      shadow-[0_4px_0_0_theme(colors.cherry.dark),0_8px_16px_rgba(255,46,136,0.4)]
       border-t border-white/30
-      hover:bg-cherry-neon hover:shadow-[0_4px_0_0_#C20055,0_12px_20px_rgba(255,46,136,0.6)]
-      active:shadow-[0_0_0_0_#C20055] active:translate-y-[4px]
+      hover:bg-cherry-neon hover:shadow-[0_4px_0_0_theme(colors.cherry.dark),0_12px_20px_rgba(255,46,136,0.6)]
+      active:shadow-[0_0_0_0_theme(colors.cherry.dark)] active:translate-y-[4px]
     `,
     // Frosted Metal
     secondary: `
       bg-white/70 backdrop-blur-md
       border border-white
       text-ink
-      shadow-[0_4px_0_0_#D1D5DB,0_4px_10px_rgba(0,0,0,0.05)]
+      shadow-[0_4px_0_0_theme(colors.gray.300),0_4px_10px_rgba(0,0,0,0.05)]
       hover:bg-white
-      active:shadow-[0_0_0_0_#D1D5DB] active:translate-y-[4px]
+      active:shadow-[0_0_0_0_theme(colors.gray.300)] active:translate-y-[4px]
     `,
     ghost: "bg-transparent text-silver-dark hover:text-ink hover:bg-black/5 rounded-lg",
     icon: `
@@ -43,6 +43,18 @@ export const Button: React.FC<ButtonProps> = ({
       shadow-[0_4px_10px_rgba(0,0,0,0.05)]
       hover:bg-white hover:scale-105
       rounded-full aspect-square
+    `,
+    // Cherry Outline
+    outline: `
+      bg-white border-2 border-cherry text-cherry
+      hover:bg-cherry/5
+      active:bg-cherry/10
+    `,
+    // Social Login (White with distinct shadow)
+    social: `
+      bg-white border border-gray-200 text-ink
+      shadow-sm hover:bg-gray-50
+      font-medium
     `
   };
 
@@ -55,7 +67,7 @@ export const Button: React.FC<ButtonProps> = ({
   const widthClass = fullWidth ? "w-full" : "";
 
   return (
-    <button 
+    <button
       className={`${baseStyle} ${variants[variant]} ${variant !== 'icon' ? sizes[size] : ''} ${widthClass} ${className}`}
       {...props}
     >
