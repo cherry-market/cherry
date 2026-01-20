@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Cherry } from 'lucide-react';
 import { Product } from '../types';
-import { Badge } from './Badge';
+import { StatusBadge } from './StatusBadge';
 
 interface ProductCardProps {
   product: Product;
@@ -33,7 +33,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
 
           {/* Industrial Status Tag */}
           <div className="absolute top-0 left-0 p-1.5 z-10">
-            <Badge status={product.status} />
+            <StatusBadge status={product.status} />
           </div>
 
 

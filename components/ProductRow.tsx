@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MessageCircle, Cherry } from 'lucide-react';
 import { Product } from '../types';
-import { Badge } from './Badge';
+import { StatusBadge } from './StatusBadge';
 
 interface ProductRowProps {
     product: Product;
@@ -31,9 +31,7 @@ export const ProductRow: React.FC<ProductRowProps> = ({ product, onClick }) => {
                 />
                 {product.status !== 'SELLING' && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold px-2 py-1 bg-black/50 rounded-lg backdrop-blur-sm">
-                            {product.status === 'RESERVED' ? '예약중' : '거래완료'}
-                        </span>
+                        <StatusBadge status={product.status} variant="overlay" />
                     </div>
                 )}
             </div>

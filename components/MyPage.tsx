@@ -1,6 +1,7 @@
 import React from 'react';
 import { User, FileText, ShoppingBag, MapPin, Grid, Cherry } from 'lucide-react';
 import { PageHeader } from './PageHeader';
+import { Avatar } from './Avatar';
 
 export const MyPage: React.FC = () => {
     return (
@@ -10,10 +11,11 @@ export const MyPage: React.FC = () => {
             <div className="px-5 mb-8 pt-4">
                 {/* Profile Header */}
                 <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden relative border border-gray-100">
-                        <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=150&q=80" alt="profile" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/5"></div>
-                    </div>
+                    <Avatar
+                        src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=150&q=80"
+                        alt="profile"
+                        size="lg"
+                    />
                     <div className="flex-1">
                         <h2 className="text-xl font-black text-ink">체리체리대장</h2>
                         <span className="text-sm text-gray-400 font-medium">#1234567</span>

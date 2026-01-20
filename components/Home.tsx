@@ -3,8 +3,7 @@ import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Loader2, SlidersHorizontal } from 'lucide-react';
 import { Product, FilterState } from '../types';
 import { Header } from './Header';
-import { ProductCard } from './ProductCard';
-import { ProductRow } from './ProductRow';
+import { ProductList } from './ProductList';
 import { TrendingSection } from './TrendingSection';
 import { ProductWriteButton } from './ProductWriteButton';
 import { ChatList } from './ChatList';
@@ -206,25 +205,11 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
                             </button>
                         </div>
 
-                        {visibleProducts.length > 0 ? (
-                            <div className="flex flex-col">
-                                {visibleProducts.map(product => (
-                                    <ProductRow
-                                        key={product.id}
-                                        product={product}
-                                        onClick={(p) => navigate(`/product/${p.id}`)}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-20 text-center">
-                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                    <Sparkles size={32} className="text-gray-300" />
-                                </div>
-                                <h3 className="text-lg font-bold text-gray-800">검색 결과가 없어요</h3>
-                                <p className="text-sm text-gray-500 mt-1">다른 키워드나 필터로 다시 찾아보세요.</p>
-                            </div>
-                        )}
+                        <ProductList
+                            products={visibleProducts}
+                            onItemClick={(p) => navigate(`/product/${p.id}`)}
+                            emptyMessage="검색 결과가 없어요"
+                        />
 
                         {isLoadingMore && (
                             <div className="py-8 flex justify-center w-full">

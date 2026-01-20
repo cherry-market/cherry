@@ -90,31 +90,23 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
           <section>
             <h3 className="text-sm font-bold text-coolGray mb-3 uppercase tracking-wider">카테고리</h3>
             <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => handleCategoryToggle('ALL')}
-                className={`
-                    px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
-                    ${localFilter.category === 'ALL'
-                    ? 'bg-cherry text-white border-cherry shadow-md'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
-                  `}
-              >
-                전체
-              </button>
-              {CATEGORIES.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => handleCategoryToggle(cat)}
-                  className={`
-                    px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
-                    ${localFilter.category === cat
-                      ? 'bg-cherry text-white border-cherry shadow-md'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
-                  `}
-                >
-                  {cat}
-                </button>
-              ))}
+              {CATEGORIES.map(cat => {
+                const isSelected = localFilter.category === cat || (cat === '전체' && localFilter.category === 'ALL');
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryToggle(cat === '전체' ? 'ALL' : cat)}
+                    className={`
+                      px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
+                      ${isSelected
+                        ? 'bg-cherry text-white border-cherry shadow-md'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
+                    `}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
             </div>
           </section>
 

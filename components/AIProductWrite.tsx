@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Camera, Sparkles, RefreshCw, ChevronRight, Check, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Input, TextArea } from './Input';
 
 type WritingStep = 'INPUT' | 'CONFIG' | 'ANALYSIS' | 'RESULT';
 
@@ -190,23 +191,21 @@ const StepInput = ({ images, onUpload, description, onDescChange, extraDesc, onE
 
         <section className="bg-white p-5 rounded-[20px] shadow-sm flex flex-col gap-4">
             <div>
-                <label className="block text-sm font-bold text-ink mb-2">상품에 대해 간단히 알려주세요</label>
-                <input
-                    type="text"
+                <Input
+                    label="상품에 대해 간단히 알려주세요"
                     value={description}
                     onChange={(e) => onDescChange(e.target.value)}
                     placeholder="예: 아이브 장원영 포카, 미개봉 앨범 💿"
-                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 outline-none focus:border-cherry focus:ring-1 focus:ring-cherry transition-all font-medium text-sm"
                 />
             </div>
             <div>
-                <label className="block text-sm font-bold text-ink mb-2">추가 설명 (선택)</label>
-                <textarea
+                <TextArea
+                    label="추가 설명 (선택)"
                     value={extraDesc}
                     onChange={(e) => onExtraDescChange(e.target.value)}
                     placeholder="강조하고 싶은 내용을 적어주세요 (최대 200자)"
                     maxLength={200}
-                    className="w-full h-32 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 outline-none resize-none text-sm leading-relaxed"
+                    className="h-32"
                 />
                 <p className="text-right text-xs text-gray-400 mt-1">{extraDesc.length}/200</p>
             </div>
@@ -296,10 +295,10 @@ const StepResult = ({ result, setResult, onRegenerate }: any) => (
                 </button>
             </div>
 
-            <textarea
+            <TextArea
                 value={result}
                 onChange={(e) => setResult(e.target.value)}
-                className="w-full h-80 bg-gray-50 border border-gray-100 rounded-xl px-4 py-4 outline-none text-base leading-relaxed resize-none text-ink focus:border-cherry/30 transition-colors"
+                className="h-80 text-base text-ink focus:border-cherry/30"
             />
             <p className="text-xs text-gray-400 mt-2 text-right">
                 내용을 자유롭게 수정할 수 있어요

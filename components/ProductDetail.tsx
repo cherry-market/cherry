@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, Share2, MoreVertical, MessageCircle, Sparkles, Loader2, RefreshCw, Cherry } from 'lucide-react';
 import { Product } from '../types';
-import { Badge } from './Badge';
+import { StatusBadge } from './StatusBadge';
+import { Avatar } from './Avatar';
 import { Button } from './Button';
 import { generateGoodsImage } from '../services/geminiService';
 
@@ -82,7 +83,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
         {/* Seller Info */}
         <div className="glass-panel rounded-[20px] p-3 flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <img src={product.seller.avatar} alt={product.seller.name} className="w-10 h-10 rounded-full bg-gray-200 object-cover" />
+            <Avatar src={product.seller.avatar} alt={product.seller.name} size="sm" />
             <div>
               <p className="text-sm font-bold text-text">{product.seller.name}</p>
               <p className="text-xs text-coolGray">서울 성동구</p>
@@ -103,7 +104,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
         <div className="mb-2 flex items-start justify-between">
           <div>
             <div className="flex gap-2 mb-2">
-              <Badge status={product.status} />
+              <StatusBadge status={product.status} />
               {product.tradeType === 'DIRECT' && (
                 <span className="px-2 py-0.5 rounded-[6px] bg-green-100 text-green-700 text-[10px] font-bold flex items-center">
                   직거래

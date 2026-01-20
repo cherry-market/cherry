@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '../types';
-import { ProductRow } from './ProductRow';
+import { ProductList } from './ProductList';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from './PageHeader';
 
@@ -17,15 +17,11 @@ export const WishList: React.FC<WishListProps> = ({ products }) => {
         <div className="pb-24 bg-white min-h-screen">
             <PageHeader title="체리픽" />
 
-            <div className="flex flex-col">
-                {likedProducts.map(product => (
-                    <ProductRow
-                        key={product.id}
-                        product={product}
-                        onClick={() => navigate(`/product/${product.id}`)}
-                    />
-                ))}
-            </div>
+            <ProductList
+                products={likedProducts}
+                onItemClick={(p) => navigate(`/product/${p.id}`)}
+                emptyMessage="찜한 상품이 없어요"
+            />
         </div>
     );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Camera, Check, ChevronRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '../constants';
+import { Input, TextArea } from './Input';
 
 export const ProductWrite: React.FC = () => {
     const navigate = useNavigate();
@@ -128,16 +129,12 @@ export const ProductWrite: React.FC = () => {
                 {/* Section 2: Basic Info */}
                 <section className="bg-white p-5 rounded-[20px] shadow-sm flex flex-col gap-6">
                     {/* Title */}
-                    <div>
-                        <label className="block text-sm font-bold text-ink mb-2">제목</label>
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="글 제목을 입력해주세요"
-                            className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 outline-none focus:border-cherry focus:ring-1 focus:ring-cherry transition-all font-medium text-sm"
-                        />
-                    </div>
+                    <Input
+                        label="제목"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="글 제목을 입력해주세요"
+                    />
 
                     {/* Category */}
                     <div>
@@ -170,28 +167,28 @@ export const ProductWrite: React.FC = () => {
                                 <span className={`text-xs font-bold ${isFreeSharing ? 'text-cherry' : 'text-gray-500'}`}>무료나눔</span>
                             </label>
                         </div>
-                        <div className={`w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 flex items-center transition-all ${isFreeSharing ? 'bg-cherry/5 border-cherry/20' : 'focus-within:border-cherry focus-within:ring-1 focus-within:ring-cherry'}`}>
-                            <span className={`font-bold mr-2 ${price && price !== '0' ? 'text-ink' : 'text-gray-400'}`}>₩</span>
-                            <input
-                                type="text"
-                                value={isFreeSharing ? '무료나눔' : price}
-                                onChange={handlePriceChange}
-                                disabled={isFreeSharing}
-                                placeholder="예) 10,000"
-                                className={`w-full bg-transparent outline-none font-medium text-sm disabled:text-cherry disabled:font-bold`}
-                            />
-                        </div>
+                        <Input
+                            startAdornment={
+                                <span className={`font-bold ${price && price !== '0' ? 'text-ink' : 'text-gray-400'}`}>₩</span>
+                            }
+                            type="text"
+                            value={isFreeSharing ? '무료나눔' : price}
+                            onChange={handlePriceChange}
+                            disabled={isFreeSharing}
+                            placeholder="예) 10,000"
+                            className="disabled:text-cherry disabled:font-bold"
+                        />
                     </div>
                 </section>
 
                 {/* Section 3: Description */}
                 <section className="bg-white p-5 rounded-[20px] shadow-sm flex flex-col gap-4">
-                    <label className="block text-sm font-bold text-ink">자세한 설명</label>
-                    <textarea
+                    <TextArea
+                        label="자세한 설명"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="게시글 내용을 작성해주세요. (가품 및 판매금지품목은 게시가 제한될 수 있어요.)"
-                        className="w-full h-48 bg-gray-50 border border-gray-100 rounded-xl px-4 py-4 outline-none resize-none text-sm leading-relaxed focus:border-cherry focus:ring-1 focus:ring-cherry transition-all"
+                        className="h-48"
                     />
                 </section>
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from './PageHeader';
+import { Avatar } from './Avatar';
 
 const MOCK_CHATS = [
     {
@@ -80,7 +81,7 @@ export const ChatList: React.FC = () => {
                     >
                         {/* Avatar */}
                         <div className="relative">
-                            <img src={chat.partner.avatar} alt={chat.partner.name} className="w-12 h-12 rounded-full object-cover border border-gray-100" />
+                            <Avatar src={chat.partner.avatar} alt={chat.partner.name} size="md" />
                             {chat.isOfficial && (
                                 <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
                                     <div className="bg-cherry rounded-full p-0.5">
