@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Bell, SlidersHorizontal, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PageHeader } from './PageHeader';
 
 const MOCK_CHATS = [
     {
@@ -53,18 +54,11 @@ export const ChatList: React.FC = () => {
     const filters = ['All', 'Selling', 'Buying', 'Unread'];
 
     return (
-        <div className="pb-24 pt-2">
-            {/* Header */}
-            <div className="px-5 mb-4 flex items-center justify-between">
-                <h1 className="text-xl font-bold text-cherry">채팅</h1>
-                <div className="flex gap-4 text-ink">
-                    <SlidersHorizontal size={20} />
-                    <Bell size={20} />
-                </div>
-            </div>
+        <div className="pb-24 bg-white min-h-screen">
+            <PageHeader title="채팅" />
 
             {/* Filters */}
-            <div className="px-5 mb-4 flex gap-2 overflow-x-auto no-scrollbar">
+            <div className="px-5 mb-4 pt-4 flex gap-2 overflow-x-auto no-scrollbar">
                 {filters.map(f => (
                     <button
                         key={f}

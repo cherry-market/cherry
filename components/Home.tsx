@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, SlidersHorizontal } from 'lucide-react';
 import { Product, FilterState } from '../types';
 import { Header } from './Header';
 import { ProductCard } from './ProductCard';
@@ -179,6 +179,8 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
                         onSearch={handleSearch}
                         onFilterClick={() => setIsFilterOpen(true)}
                         isScrolled={isScrolled}
+                        showBackButton={!!searchQuery}
+                        onBack={() => handleSearch('')}
                     />
 
                     {!searchQuery && <BannerCarousel />}
@@ -192,8 +194,14 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
 
                     <div className="px-4 py-2">
                         {/* Normal List Section Title */}
-                        <div className="mb-3 mt-2">
+                        <div className="mb-3 mt-2 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-ink">체리픽</h3>
+                            <button
+                                onClick={() => setIsFilterOpen(true)}
+                                className="p-2 -mr-2 text-coolGray hover:text-cherry active:scale-95 transition-all"
+                            >
+                                <SlidersHorizontal size={20} />
+                            </button>
                         </div>
 
                         {visibleProducts.length > 0 ? (

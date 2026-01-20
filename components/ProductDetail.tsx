@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Share2, MoreVertical, MessageCircle, Sparkles, Loader2, RefreshCw, Cherry } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Share2, MoreVertical, MessageCircle, Sparkles, Loader2, RefreshCw, Cherry } from 'lucide-react';
 import { Product } from '../types';
 import { Badge } from './Badge';
 import { Button } from './Button';
@@ -32,26 +32,34 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
 
       {/* Image Slider */}
       <div className="relative w-full aspect-square bg-gray-200 overflow-hidden rounded-b-[32px] shadow-lg group">
-        <img
-          src={product.images[currentImageIndex]}
-          alt={product.title}
-          className="w-full h-full object-cover transition-opacity duration-300"
-        />
+        <div
+          className="flex w-full h-full transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+        >
+          {product.images.map((img, idx) => (
+            <img
+              key={idx}
+              src={img}
+              alt={`${product.title} - ${idx + 1}`}
+              className="w-full h-full object-cover flex-shrink-0"
+            />
+          ))}
+        </div>
 
         {/* Navigation Arrows */}
         {product.images.length > 1 && (
           <>
             <button
               onClick={() => setCurrentImageIndex(prev => prev === 0 ? product.images.length - 1 : prev - 1)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 text-white backdrop-blur-md transition-all active:scale-95 hover:bg-black/30"
             >
               <ArrowLeft size={20} />
             </button>
             <button
               onClick={() => setCurrentImageIndex(prev => prev === product.images.length - 1 ? 0 : prev + 1)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/20 text-white backdrop-blur-md transition-all active:scale-95 hover:bg-black/30"
             >
-              <ArrowLeft size={20} className="rotate-180" />
+              <ArrowRight size={20} />
             </button>
           </>
         )}

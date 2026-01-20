@@ -1,15 +1,13 @@
 import React from 'react';
-import { Settings, User, FileText, ShoppingBag, MapPin, Grid, Cherry } from 'lucide-react';
+import { User, FileText, ShoppingBag, MapPin, Grid, Cherry } from 'lucide-react';
+import { PageHeader } from './PageHeader';
 
 export const MyPage: React.FC = () => {
     return (
-        <div className="pb-24 pt-4 bg-white min-h-screen">
-            <header className="px-5 flex justify-between items-center mb-4">
-                <h1 className="text-xl font-bold text-cherry">마이페이지</h1>
-                <Settings size={24} className="text-ink" />
-            </header>
+        <div className="pb-24 bg-white min-h-screen">
+            <PageHeader title="마이페이지" />
 
-            <div className="px-5 mb-8">
+            <div className="px-5 mb-8 pt-4">
                 {/* Profile Header */}
                 <div className="flex items-center gap-4 mb-6">
                     <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden relative border border-gray-100">

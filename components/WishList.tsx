@@ -2,6 +2,7 @@ import React from 'react';
 import { Product } from '../types';
 import { ProductRow } from './ProductRow';
 import { useNavigate } from 'react-router-dom';
+import { PageHeader } from './PageHeader';
 
 interface WishListProps {
     products: Product[];
@@ -13,10 +14,8 @@ export const WishList: React.FC<WishListProps> = ({ products }) => {
     const likedProducts = products.slice(0, 3);
 
     return (
-        <div className="pb-24 pt-2 min-h-screen bg-white">
-            <div className="px-4 mb-4 pt-2 border-b border-gray-100 pb-4">
-                <h1 className="text-xl font-bold text-cherry">체리픽 리스트</h1>
-            </div>
+        <div className="pb-24 bg-white min-h-screen">
+            <PageHeader title="체리픽" />
 
             <div className="flex flex-col">
                 {likedProducts.map(product => (
