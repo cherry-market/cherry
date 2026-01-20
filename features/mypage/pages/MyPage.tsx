@@ -1,10 +1,22 @@
 import React from 'react';
-import { User, FileText, ShoppingBag, MapPin, Grid, Cherry } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { User, FileText, ShoppingBag, MapPin, Grid, Cherry, LogOut } from 'lucide-react';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { Avatar } from '@/shared/ui/Avatar';
-import { MY_PAGE_PROFILE } from '../mockData';
+import { useAuthStore } from '@/features/auth/model/authStore';
+import { ROUTES } from '@/shared/constants/routes';
 
 export const MyPage: React.FC = () => {
+    const navigate = useNavigate();
+    const { user, logout } = useAuthStore();
+
+    if (!user) return null;
+
+    const handleLogout = () => {
+        logout();
+        navigate(ROUTES.ROOT);
+    };
+
     return (
         <div className="pb-24 bg-white min-h-screen">
             <PageHeader title="마이페이지" />
@@ -13,13 +25,13 @@ export const MyPage: React.FC = () => {
                 {/* Profile Header */}
                 <div className="flex items-center gap-4 mb-6">
                     <Avatar
-                        src={MY_PAGE_PROFILE.avatar}
+                        src={user.profileImage || "https://dummyimage.com/150x150/f3f4f6/9ca3af&text=User"}
                         alt="profile"
                         size="lg"
                     />
                     <div className="flex-1">
-                        <h2 className="text-xl font-black text-ink">{MY_PAGE_PROFILE.name}</h2>
-                        <span className="text-sm text-gray-400 font-medium">{MY_PAGE_PROFILE.tag}</span>
+                        <h2 className="text-xl font-black text-ink">{user.nickname}</h2>
+                        <span className="text-sm text-gray-400 font-medium">#{user.id}</span>
                     </div>
                     <button className="px-3 py-1.5 rounded-full bg-gray-100 text-xs font-bold text-gray-600">
                         프로필 보기
@@ -30,10 +42,10 @@ export const MyPage: React.FC = () => {
                 <div className="mb-6">
                     <div className="flex justify-between items-end mb-2">
                         <span className="text-sm font-bold text-ink">매너온도</span>
-                        <span className="text-xl font-bold text-cherry">{MY_PAGE_PROFILE.temperatureLabel}</span>
+                        <span className="text-xl font-bold text-cherry">36.5℃</span>
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden relative">
-                        <div className="absolute top-0 left-0 h-full bg-cherry w-full" />
+                        <div className="absolute top-0 left-0 h-full bg-cherry w-[36%]" />
                     </div>
                 </div>
 
@@ -55,6 +67,13 @@ export const MyPage: React.FC = () => {
                 <div className="h-px bg-gray-50 my-2 mx-5"></div>
                 <MenuItem label="친구초대" icon={User} />
                 <MenuItem label="자주 묻는 질문" icon={FileText} />
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 w-full px-5 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors text-red-500"
+                >
+                    <LogOut size={22} />
+                    <span className="text-[16px] font-medium">로그아웃</span>
+                </button>
             </div>
         </div>
     );

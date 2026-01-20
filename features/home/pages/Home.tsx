@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Loader2, SlidersHorizontal } from 'lucide-react';
 import type { FilterState, Product } from '@/features/product/types';
+import { useAuthStore } from '@/features/auth/model/authStore';
 import { Header } from '../components/Header';
 import { ProductList } from '@/features/product/components/ProductList';
 import { TrendingSection } from '../components/TrendingSection';
@@ -171,7 +172,14 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
     }, [loadMoreProducts, isLoadingMore, hasMore]);
 
 
+    const { isLoggedIn } = useAuthStore();
+
     const handleTabChange = (tab: string) => {
+        if ((tab === MAIN_TABS.MY || tab === MAIN_TABS.CHAT || tab === MAIN_TABS.LIKES) && !isLoggedIn) {
+            navigate(ROUTES.LOGIN, { state: { fromTab: tab } });
+            return;
+        }
+
         setActiveTab(tab);
         if (tab === MAIN_TABS.HOME) {
             window.scrollTo(0, 0);
