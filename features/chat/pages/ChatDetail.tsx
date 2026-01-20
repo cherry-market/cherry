@@ -72,9 +72,9 @@ export const ChatDetail: React.FC = () => {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 bg-[#1A1A1A] px-4 py-4 flex flex-col gap-3 overflow-y-auto">
+            <div className="flex-1 bg-white px-4 py-4 flex flex-col gap-3 overflow-y-auto">
                 <div className="flex justify-center my-4">
-                    <span className="text-[12px] text-gray-500 font-medium">{CHAT_DETAIL_DATE_LABEL}</span>
+                    <span className="text-[12px] text-gray-400 font-bold px-3 py-1 bg-gray-50 rounded-full">{CHAT_DETAIL_DATE_LABEL}</span>
                 </div>
 
                 {messages.map((msg) => (
@@ -82,34 +82,34 @@ export const ChatDetail: React.FC = () => {
                         {msg.sender === 'PARTNER' && (
                             <img src={CHAT_DETAIL_PARTNER_AVATAR} alt="avatar" className="w-8 h-8 rounded-full mb-1" />
                         )}
-                        <div className={`px-4 py-2.5 rounded-[20px] text-[14px] whitespace-pre-wrap leading-snug ${msg.sender === 'ME'
-                            ? 'bg-[#FF6B35] text-white rounded-br-none' // Matching Karrot orange bubble
-                            : 'bg-[#2C2C2C] text-gray-100 rounded-bl-none'
+                        <div className={`px-4 py-2.5 rounded-[20px] text-[15px] whitespace-pre-wrap leading-snug shadow-sm ${msg.sender === 'ME'
+                            ? 'bg-cherry text-white rounded-br-none' // Cherry color for ME
+                            : 'bg-gray-100 text-ink rounded-bl-none' // Light gray for PARTNER
                             }`}>
                             {msg.text}
                         </div>
-                        <span className="text-[10px] text-gray-500 mb-0.5 flex-shrink-0">{msg.time}</span>
+                        <span className="text-[10px] text-gray-400 mb-0.5 flex-shrink-0">{msg.time}</span>
                     </div>
                 ))}
             </div>
 
             {/* Input Area */}
-            <div className="sticky bottom-0 bg-[#2C2C2C] px-3 py-2 flex items-center gap-3 pb-safe w-full border-t border-gray-700">
-                <button className="text-gray-400 p-1">
+            <div className="sticky bottom-0 bg-white px-3 py-2 flex items-center gap-3 pb-safe w-full border-t border-gray-100">
+                <button className="text-gray-400 p-1 hover:bg-gray-50 rounded-full transition-colors">
                     <Plus size={24} />
                 </button>
-                <div className="flex-1 bg-[#3A3A3A] rounded-full flex items-center px-4 py-2">
+                <div className="flex-1 bg-gray-100 rounded-full flex items-center px-4 py-2 hover:ring-1 hover:ring-gray-200 transition-all">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                         placeholder={CHAT_INPUT_PLACEHOLDER}
-                        className="flex-1 bg-transparent text-white placeholder:text-gray-500 text-sm outline-none"
+                        className="flex-1 bg-transparent text-ink placeholder:text-gray-400 text-sm outline-none font-medium"
                     />
-                    <Smile size={20} className="text-gray-500 ml-2" />
+                    <Smile size={20} className="text-gray-400 ml-2" />
                 </div>
-                <button onClick={handleSend} className={`p-2 transition-colors ${input.trim() ? 'text-cherry' : 'text-gray-600'}`}>
+                <button onClick={handleSend} className={`p-2 transition-colors ${input.trim() ? 'text-cherry' : 'text-gray-300'}`}>
                     <Send size={24} />
                 </button>
             </div>
