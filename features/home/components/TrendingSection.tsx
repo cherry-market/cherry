@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import type { Product } from '@/features/product/types';
 import { ProductCard } from '@/features/product/components/ProductCard';
+import { useTrending } from '@/features/product/hooks/useTrending';
 
 interface TrendingSectionProps {
-    products: Product[];
     onProductClick: (product: Product) => void;
 }
 
-export const TrendingSection: React.FC<TrendingSectionProps> = ({ products, onProductClick }) => {
+export const TrendingSection: React.FC<TrendingSectionProps> = ({ onProductClick }) => {
+    const { products, isLoading, error, loadTrending } = useTrending(8);
+
+    useEffect(() => {
+        loadTrending();
+    }, [loadTrending]);
+
+    // Silent fail for better UX
+    if (error) return null;
+
     return (
         <div className="py-4 bg-gray-50/50">
             <div className="px-4 mb-4 flex items-center justify-between">
@@ -18,16 +28,22 @@ export const TrendingSection: React.FC<TrendingSectionProps> = ({ products, onPr
                 <span className="text-xs font-bold text-gray-400 cursor-pointer hover:text-cherry transition-colors">전체보기</span>
             </div>
 
-            <div className="flex overflow-x-auto px-4 pb-4 gap-3 no-scrollbar snap-x snap-mandatory">
-                {products.map(product => (
-                    <div key={product.id} className="snap-center flex-shrink-0 w-[140px]">
-                        <ProductCard
-                            product={product}
-                            onClick={onProductClick}
-                        />
-                    </div>
-                ))}
-            </div>
+            {isLoading ? (
+                <div className="flex justify-center py-8">
+                    <Loader2 size={32} className="animate-spin text-cherry" />
+                </div>
+            ) : (
+                <div className="flex overflow-x-auto px-4 pb-4 gap-3 no-scrollbar snap-x snap-mandatory">
+                    {products.map(product => (
+                        <div key={product.id} className="snap-center flex-shrink-0 w-[140px]">
+                            <ProductCard
+                                product={product}
+                                onClick={onProductClick}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

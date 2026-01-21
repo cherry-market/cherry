@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Product } from '@/features/product/types';
 import { productApi } from '@/shared/services/productApi';
 import { ProductMapper } from '@/shared/mappers/productMapper';
@@ -9,7 +9,7 @@ import { ProductMapper } from '@/shared/mappers/productMapper';
 export const useProducts = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [cursor, setCursor] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +61,10 @@ export const useProducts = () => {
      */
     const refresh = useCallback(async () => {
         await loadInitial();
+    }, [loadInitial]);
+
+    useEffect(() => {
+        void loadInitial();
     }, [loadInitial]);
 
     return {

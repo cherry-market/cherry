@@ -1,8 +1,8 @@
 const API_BASE = '/api';
 
 export const api = {
-    get: async <T>(endpoint: string): Promise<T> => {
-        const response = await fetch(`${API_BASE}${endpoint}`);
+    get: async <T>(endpoint: string, signal?: AbortSignal): Promise<T> => {
+        const response = await fetch(`${API_BASE}${endpoint}`, { signal });
         if (!response.ok) {
             throw new Error(`API Error: ${response.status} ${response.statusText}`);
         }

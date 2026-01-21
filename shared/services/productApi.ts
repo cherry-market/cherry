@@ -55,7 +55,7 @@ export const productApi = {
     /**
      * 트렌딩 상품 조회 (조회수 기반 Top N)
      */
-    getTrending: () => api.get<ProductListResponse>(`/products/trending`),
+    getTrending: (signal?: AbortSignal) => api.get<ProductListResponse>(`/products/trending`, signal),
 
     /**
      * 조회수 증가 (명시적 호출용)

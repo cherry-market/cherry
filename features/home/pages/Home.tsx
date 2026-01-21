@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Loader2, SlidersHorizontal } from 'lucide-react';
-import type { FilterState, Product } from '@/features/product/types';
+import { Loader2, SlidersHorizontal } from 'lucide-react';
+import type { FilterState } from '@/features/product/types';
 import { useProducts } from '@/features/product/hooks/useProducts';
-import { useAuthStore } from '@/features/auth/model/authStore';
 import { Header } from '../components/Header';
 import { ProductList } from '@/features/product/components/ProductList';
 import { TrendingSection } from '../components/TrendingSection';
@@ -38,7 +37,6 @@ export const Home: React.FC = () => {
         isLoadingMore,
         error: apiError,
         hasMore,
-        loadInitial,
         loadMore,
     } = useProducts();
 
@@ -76,11 +74,6 @@ export const Home: React.FC = () => {
         else params.delete('q');
         setSearchParams(params);
     };
-
-    // Initial Load - Custom Hook 사용
-    useEffect(() => {
-        loadInitial();
-    }, [loadInitial]);
 
     // Scroll Detection
     useEffect(() => {
@@ -127,8 +120,6 @@ export const Home: React.FC = () => {
         return true;
     });
 
-    const { isLoggedIn } = useAuthStore();
-
     const handleTabChange = (tab: string) => {
         setActiveTab(tab);
         if (tab === MAIN_TABS.HOME) {
@@ -136,14 +127,6 @@ export const Home: React.FC = () => {
             setSearchParams({}); // Reset filters
         }
     };
-
-    if (isLoading) {
-        return (
-            <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl flex items-center justify-center">
-                <Loader2 size={48} className="animate-spin text-cherry" />
-            </div>
-        );
-    }
 
     if (apiError) {
         return (
@@ -159,8 +142,15 @@ export const Home: React.FC = () => {
         );
     }
 
+    const isInitialLoading = isLoading && allProducts.length === 0;
+
     return (
         <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative pb-20 border-x border-gray-100">
+            {isInitialLoading && (
+                <div className="absolute inset-0 bg-white z-50 flex items-center justify-center">
+                    <Loader2 size={48} className="animate-spin text-cherry" />
+                </div>
+            )}
             {activeTab === MAIN_TABS.HOME && (
                 <>
                     <Header
@@ -177,7 +167,6 @@ export const Home: React.FC = () => {
 
                     {!searchQuery && (
                         <TrendingSection
-                            products={allProducts.slice(0, 8)} // TODO: 백엔드 trending API 연동
                             onProductClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
                         />
                     )}
@@ -193,11 +182,13 @@ export const Home: React.FC = () => {
                             </button>
                         </div>
 
-                        <ProductList
-                            products={filteredProducts}
-                            onItemClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
-                            emptyMessage="검색 결과가 없어요"
-                        />
+                        {!isInitialLoading && (
+                            <ProductList
+                                products={filteredProducts}
+                                onItemClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
+                                emptyMessage="검색 결과가 없어요"
+                            />
+                        )}
 
                         {isLoadingMore && (
                             <div className="py-8 flex justify-center w-full">
