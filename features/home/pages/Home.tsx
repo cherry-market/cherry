@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Loader2, SlidersHorizontal } from 'lucide-react';
 import type { FilterState, Product } from '@/features/product/types';
-import { productApi, ProductSummary } from '@/shared/services/productApi';
+import { useProducts } from '@/features/product/hooks/useProducts';
 import { useAuthStore } from '@/features/auth/model/authStore';
 import { Header } from '../components/Header';
 import { ProductList } from '@/features/product/components/ProductList';
@@ -18,33 +18,10 @@ import { MAIN_TABS } from '@/shared/constants/navigation';
 import { ROUTES } from '@/shared/constants/routes';
 import {
     HOME_INFINITE_SCROLL_OFFSET_PX,
-    HOME_LOAD_MORE_DELAY_MS,
     HOME_SCROLL_TOP_THRESHOLD_PX,
 } from '../constants';
 
-// Utility: Backend product to Frontend product mapper
-const mapToFrontendProduct = (backendProduct: ProductSummary): Product => {
-    return {
-        id: backendProduct.id, // Backend: number, Frontend: number
-        title: backendProduct.title,
-        price: backendProduct.price,
-        image: backendProduct.thumbnailUrl,
-        category: '미분류', // 백엔드에서 제공 안함 (TODO: 추후 확장)
-        status: backendProduct.status,
-        likes: 0, // 백엔드에서 제공 안함 (TODO: 추후 확장)
-        uploadedTime: new Date(backendProduct.createdAt).toLocaleString('ko-KR'), // createdAt을 문자열로 변환
-        seller: {
-            name: '판매자', // 백엔드에서 목록에 제공 안함
-            avatar: 'https://via.placeholder.com/50',
-            temperature: 36.5,
-        },
-        tags: [], // 백엔드에서 제공 안함
-        description: '',
-        images: [backendProduct.thumbnailUrl],
-        artist: undefined,
-        tradeType: backendProduct.tradeType === 'BOTH' ? 'ALL' : backendProduct.tradeType, // BOTH -> ALL 매핑
-    };
-};
+
 
 export const Home: React.FC = () => {
     const navigate = useNavigate();
@@ -54,13 +31,16 @@ export const Home: React.FC = () => {
     // Navigation State
     const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || MAIN_TABS.HOME);
 
-    // Data State - 백엔드 API 연동
-    const [allProducts, setAllProducts] = useState<Product[]>([]);
-    const [cursor, setCursor] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const [apiError, setApiError] = useState<string | null>(null);
+    // Data State - Custom Hook으로 추출
+    const {
+        products: allProducts,
+        isLoading,
+        isLoadingMore,
+        error: apiError,
+        hasMore,
+        loadInitial,
+        loadMore,
+    } = useProducts();
 
     // UI State
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -97,27 +77,10 @@ export const Home: React.FC = () => {
         setSearchParams(params);
     };
 
-    // Initial Load - 백엔드 API 호출
+    // Initial Load - Custom Hook 사용
     useEffect(() => {
-        const loadProducts = async () => {
-            setIsLoading(true);
-            setApiError(null);
-            try {
-                const response = await productApi.getProducts(undefined, 20);
-                const mappedProducts = response.items.map(mapToFrontendProduct);
-                setAllProducts(mappedProducts);
-                setCursor(response.nextCursor);
-                setHasMore(response.nextCursor !== null);
-            } catch (error) {
-                console.error('Failed to load products:', error);
-                setApiError('상품 목록을 불러오는데 실패했습니다.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadProducts();
-    }, []); // 최초 로드만 실행
+        loadInitial();
+    }, [loadInitial]);
 
     // Scroll Detection
     useEffect(() => {
@@ -126,23 +89,10 @@ export const Home: React.FC = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Infinite Scroll - 백엔드 cursor 기반
-    const loadMoreProducts = useCallback(async () => {
-        if (isLoadingMore || !hasMore || !cursor) return;
-        setIsLoadingMore(true);
-
-        try {
-            const response = await productApi.getProducts(cursor, 20);
-            const mappedProducts = response.items.map(mapToFrontendProduct);
-            setAllProducts(prev => [...prev, ...mappedProducts]);
-            setCursor(response.nextCursor);
-            setHasMore(response.nextCursor !== null);
-        } catch (error) {
-            console.error('Failed to load more products:', error);
-        } finally {
-            setIsLoadingMore(false);
-        }
-    }, [cursor, isLoadingMore, hasMore]);
+    // Infinite Scroll - Custom Hook 사용
+    const loadMoreProducts = useCallback(() => {
+        loadMore();
+    }, [loadMore]);
 
     // Scroll ending listener
     useEffect(() => {
