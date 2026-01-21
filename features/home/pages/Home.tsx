@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, Loader2, SlidersHorizontal } from 'lucide-react';
 import type { FilterState, Product } from '@/features/product/types';
+import { productApi, ProductSummary } from '@/shared/services/productApi';
 import { useAuthStore } from '@/features/auth/model/authStore';
 import { Header } from '../components/Header';
 import { ProductList } from '@/features/product/components/ProductList';
@@ -16,18 +17,36 @@ import { BottomNavigation } from '@/shared/ui/BottomNavigation';
 import { MAIN_TABS } from '@/shared/constants/navigation';
 import { ROUTES } from '@/shared/constants/routes';
 import {
-    HOME_ITEMS_PER_PAGE,
     HOME_INFINITE_SCROLL_OFFSET_PX,
     HOME_LOAD_MORE_DELAY_MS,
     HOME_SCROLL_TOP_THRESHOLD_PX,
 } from '../constants';
 
-interface HomeProps {
-    allProducts: Product[];
-    onNewProduct: () => void;
-}
+// Utility: Backend product to Frontend product mapper
+const mapToFrontendProduct = (backendProduct: ProductSummary): Product => {
+    return {
+        id: backendProduct.id, // Backend: number, Frontend: number
+        title: backendProduct.title,
+        price: backendProduct.price,
+        image: backendProduct.thumbnailUrl,
+        category: '미분류', // 백엔드에서 제공 안함 (TODO: 추후 확장)
+        status: backendProduct.status,
+        likes: 0, // 백엔드에서 제공 안함 (TODO: 추후 확장)
+        uploadedTime: new Date(backendProduct.createdAt).toLocaleString('ko-KR'), // createdAt을 문자열로 변환
+        seller: {
+            name: '판매자', // 백엔드에서 목록에 제공 안함
+            avatar: 'https://via.placeholder.com/50',
+            temperature: 36.5,
+        },
+        tags: [], // 백엔드에서 제공 안함
+        description: '',
+        images: [backendProduct.thumbnailUrl],
+        artist: undefined,
+        tradeType: backendProduct.tradeType === 'BOTH' ? 'ALL' : backendProduct.tradeType, // BOTH -> ALL 매핑
+    };
+};
 
-export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
+export const Home: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -35,10 +54,13 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
     // Navigation State
     const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || MAIN_TABS.HOME);
 
-    // Data State
-    const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
+    // Data State - 백엔드 API 연동
+    const [allProducts, setAllProducts] = useState<Product[]>([]);
+    const [cursor, setCursor] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [apiError, setApiError] = useState<string | null>(null);
 
     // UI State
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -75,41 +97,27 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
         setSearchParams(params);
     };
 
-    // Initial Load & Filter Logic
+    // Initial Load - 백엔드 API 호출
     useEffect(() => {
-        // Reset visible products when filter changes
-        window.scrollTo(0, 0);
+        const loadProducts = async () => {
+            setIsLoading(true);
+            setApiError(null);
+            try {
+                const response = await productApi.getProducts(undefined, 20);
+                const mappedProducts = response.items.map(mapToFrontendProduct);
+                setAllProducts(mappedProducts);
+                setCursor(response.nextCursor);
+                setHasMore(response.nextCursor !== null);
+            } catch (error) {
+                console.error('Failed to load products:', error);
+                setApiError('상품 목록을 불러오는데 실패했습니다.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-        let result = [...allProducts];
-
-        // Search
-        if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            result = result.filter(p =>
-                p.title.toLowerCase().includes(q) ||
-                p.tags.some(t => t.toLowerCase().includes(q)) ||
-                (p.artist && p.artist.toLowerCase().includes(q))
-            );
-        }
-
-        // Filter
-        if (currentFilter.status !== 'ALL') result = result.filter(p => p.status === currentFilter.status);
-        if (currentFilter.category !== 'ALL') result = result.filter(p => p.category === currentFilter.category);
-        if (currentFilter.tradeType !== 'ALL') result = result.filter(p => p.tradeType === currentFilter.tradeType);
-        if (currentFilter.minPrice > 0) result = result.filter(p => p.price >= currentFilter.minPrice);
-        if (currentFilter.maxPrice > 0) result = result.filter(p => p.price <= currentFilter.maxPrice);
-
-        // Sort
-        if (currentFilter.sortBy === 'LOW_PRICE') result.sort((a, b) => a.price - b.price);
-        else if (currentFilter.sortBy === 'HIGH_PRICE') result.sort((a, b) => b.price - a.price);
-        else if (currentFilter.sortBy === 'POPULAR') {
-            result.sort((a, b) => b.likes - a.likes);
-        }
-
-        const firstBatch = result.slice(0, HOME_ITEMS_PER_PAGE);
-        setVisibleProducts(firstBatch);
-        setHasMore(result.length > HOME_ITEMS_PER_PAGE);
-    }, [allProducts, searchQuery, JSON.stringify(currentFilter)]);
+        loadProducts();
+    }, []); // 최초 로드만 실행
 
     // Scroll Detection
     useEffect(() => {
@@ -118,42 +126,23 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Infinite Scroll
-    const loadMoreProducts = useCallback(() => {
-        if (isLoadingMore || !hasMore) return;
+    // Infinite Scroll - 백엔드 cursor 기반
+    const loadMoreProducts = useCallback(async () => {
+        if (isLoadingMore || !hasMore || !cursor) return;
         setIsLoadingMore(true);
 
-        setTimeout(() => {
-            setVisibleProducts(prev => {
-                const currentLength = prev.length;
-                // Re-run filter logic to find next batch (Inefficient but robust for Mock)
-                let result = [...allProducts];
-
-                if (searchQuery) {
-                    const q = searchQuery.toLowerCase();
-                    result = result.filter(p =>
-                        p.title.toLowerCase().includes(q) ||
-                        p.tags.some(t => t.toLowerCase().includes(q)) ||
-                        (p.artist && p.artist.toLowerCase().includes(q))
-                    );
-                }
-                if (currentFilter.status !== 'ALL') result = result.filter(p => p.status === currentFilter.status);
-                if (currentFilter.category !== 'ALL') result = result.filter(p => p.category === currentFilter.category);
-                if (currentFilter.tradeType !== 'ALL') result = result.filter(p => p.tradeType === currentFilter.tradeType);
-                if (currentFilter.minPrice > 0) result = result.filter(p => p.price >= currentFilter.minPrice);
-                if (currentFilter.maxPrice > 0) result = result.filter(p => p.price <= currentFilter.maxPrice);
-
-                if (currentFilter.sortBy === 'LOW_PRICE') result.sort((a, b) => a.price - b.price);
-                else if (currentFilter.sortBy === 'HIGH_PRICE') result.sort((a, b) => b.price - a.price);
-                else if (currentFilter.sortBy === 'POPULAR') result.sort((a, b) => b.likes - a.likes);
-
-                const nextBatch = result.slice(currentLength, currentLength + HOME_ITEMS_PER_PAGE);
-                if (currentLength + nextBatch.length >= result.length) setHasMore(false);
-                return [...prev, ...nextBatch];
-            });
+        try {
+            const response = await productApi.getProducts(cursor, 20);
+            const mappedProducts = response.items.map(mapToFrontendProduct);
+            setAllProducts(prev => [...prev, ...mappedProducts]);
+            setCursor(response.nextCursor);
+            setHasMore(response.nextCursor !== null);
+        } catch (error) {
+            console.error('Failed to load more products:', error);
+        } finally {
             setIsLoadingMore(false);
-        }, HOME_LOAD_MORE_DELAY_MS);
-    }, [isLoadingMore, hasMore, allProducts, searchQuery, JSON.stringify(currentFilter)]);
+        }
+    }, [cursor, isLoadingMore, hasMore]);
 
     // Scroll ending listener
     useEffect(() => {
@@ -171,17 +160,54 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [loadMoreProducts, isLoadingMore, hasMore]);
 
+    // 클라이언트 사이드 필터링 (백엔드 필터링 미지원 시 임시)
+    const filteredProducts = allProducts.filter(p => {
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const matchesSearch = p.title.toLowerCase().includes(q) ||
+                p.tags.some(t => t.toLowerCase().includes(q)) ||
+                (p.artist && p.artist.toLowerCase().includes(q));
+            if (!matchesSearch) return false;
+        }
+        if (currentFilter.status !== 'ALL' && p.status !== currentFilter.status) return false;
+        if (currentFilter.category !== 'ALL' && p.category !== currentFilter.category) return false;
+        if (currentFilter.tradeType !== 'ALL' && p.tradeType !== currentFilter.tradeType) return false;
+        if (currentFilter.minPrice > 0 && p.price < currentFilter.minPrice) return false;
+        if (currentFilter.maxPrice > 0 && p.price > currentFilter.maxPrice) return false;
+        return true;
+    });
 
     const { isLoggedIn } = useAuthStore();
 
     const handleTabChange = (tab: string) => {
-        // Removed automatic login redirection to support LoginPrompt UI in tabs
         setActiveTab(tab);
         if (tab === MAIN_TABS.HOME) {
             window.scrollTo(0, 0);
             setSearchParams({}); // Reset filters
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl flex items-center justify-center">
+                <Loader2 size={48} className="animate-spin text-cherry" />
+            </div>
+        );
+    }
+
+    if (apiError) {
+        return (
+            <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl flex flex-col items-center justify-center px-4">
+                <p className="text-coolGray text-center mb-4">{apiError}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-cherry text-white rounded-lg"
+                >
+                    다시 시도
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative pb-20 border-x border-gray-100">
@@ -201,13 +227,12 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
 
                     {!searchQuery && (
                         <TrendingSection
-                            products={allProducts.slice(0, 8)} // Mock trending data
+                            products={allProducts.slice(0, 8)} // TODO: 백엔드 trending API 연동
                             onProductClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
                         />
                     )}
 
                     <div className="px-4 py-2">
-                        {/* Normal List Section Title */}
                         <div className="mb-3 mt-2 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-ink">체리픽</h3>
                             <button
@@ -219,7 +244,7 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
                         </div>
 
                         <ProductList
-                            products={visibleProducts}
+                            products={filteredProducts}
                             onItemClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
                             emptyMessage="검색 결과가 없어요"
                         />

@@ -2,7 +2,7 @@ export type ProductStatus = 'SELLING' | 'RESERVED' | 'SOLD';
 export type TradeType = 'DELIVERY' | 'DIRECT' | 'ALL';
 
 export interface Product {
-  id: string;
+  id: number; // Changed: string -> number to match backend Long type
   title: string;
   price: number;
   image: string;

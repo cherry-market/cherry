@@ -12,7 +12,9 @@ export const ProductDetailWrapper: React.FC<ProductDetailWrapperProps> = ({ prod
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const product = products.find(p => p.id === id);
+    // Parse id as number to match Product.id type
+    const productId = id ? Number(id) : undefined;
+    const product = products.find(p => p.id === productId);
 
     if (!product) {
         return (
