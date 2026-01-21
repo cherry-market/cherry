@@ -5,6 +5,7 @@ import { Input } from '@/shared/ui/Input';
 import { ChevronLeft } from 'lucide-react';
 import { useAuthStore } from '../model/authStore';
 import { ROUTES } from '@/shared/constants/routes';
+import * as authApi from '@/shared/services/authApi';
 
 export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
@@ -14,36 +15,41 @@ export const LoginPage: React.FC = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleLoginSuccess = () => {
-        // Mock login logic
-        login({
-            id: 'mock-user-1',
-            email: email || 'user@cherry.com',
-            nickname: '체리러버',
-            profileImage: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=150&q=80'
-        });
+    const handleLogin = async () => {
+        if (!email || !password) return;
 
-        if (fromTab) {
-            navigate(ROUTES.ROOT, { state: { activeTab: fromTab } });
-        } else {
-            navigate(-1);
-        }
-    };
+        setLoading(true);
+        setError('');
 
-    const handleGoogleLogin = () => {
-        // Mock Google login
-        login({
-            id: 'google-user-1',
-            email: 'google@cherry.com',
-            nickname: '구글체리',
-            profileImage: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=150&q=80'
-        });
+        try {
+            // 1. 백엔드 로그인 API 호출
+            const tokenResponse = await authApi.login({ email, password });
 
-        if (fromTab) {
-            navigate(ROUTES.ROOT, { state: { activeTab: fromTab } });
-        } else {
-            navigate(-1);
+            // 2. 토큰으로 사용자 정보 조회
+            const userResponse = await authApi.getMe(tokenResponse.accessToken);
+
+            // 3. 로그인 상태 업데이트
+            login({
+                id: userResponse.id,
+                email: userResponse.email,
+                nickname: userResponse.nickname,
+                profileImage: userResponse.profileImageUrl || undefined
+            }, tokenResponse.accessToken);
+
+            // 4. 페이지 이동
+            if (fromTab) {
+                navigate(ROUTES.ROOT, { state: { activeTab: fromTab } });
+            } else {
+                navigate(-1);
+            }
+        } catch (err) {
+            console.error('Login failed:', err);
+            setError(err instanceof Error ? err.message : '로그인에 실패했습니다');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -68,10 +74,18 @@ export const LoginPage: React.FC = () => {
 
                 {/* Login Form */}
                 <div className="w-full space-y-3">
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
+                    
                     <Input
                         placeholder="이메일"
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                         className="h-12"
                     />
                     <Input
@@ -79,15 +93,16 @@ export const LoginPage: React.FC = () => {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                         className="h-12"
                     />
 
                     <Button
                         fullWidth
-                        onClick={handleLoginSuccess}
-                        disabled={!email || !password}
+                        onClick={handleLogin}
+                        disabled={!email || !password || loading}
                     >
-                        로그인
+                        {loading ? '로그인 중...' : '로그인'}
                     </Button>
 
                     <div className="flex justify-between items-center text-xs text-gray-500 mt-3 px-1">
@@ -103,12 +118,12 @@ export const LoginPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Social Login */}
+                {/* Social Login - UI만 구현, 백엔드 연동은 추후 */}
                 <div className="w-full mt-10 space-y-3">
                     <Button
                         variant="social"
                         fullWidth
-                        onClick={handleGoogleLogin}
+                        onClick={() => alert('Google 로그인은 백엔드 구현 후 연동 예정입니다')}
                         className="flex gap-2"
                     >
                         <img
@@ -118,11 +133,6 @@ export const LoginPage: React.FC = () => {
                         />
                         Google로 로그인
                     </Button>
-                    {/* Placeholder for Kakao/Apple if needed in future to match visual density of Musinsa
-                    <button className="w-full h-12 bg-[#FEE500] rounded-[6px] flex items-center justify-center gap-2 text-[#000000] font-medium text-sm">
-                        <MessageCircle size={18} fill="currentColor" /> 카카오로 시작하기
-                    </button> 
-                    */}
                 </div>
 
                 {/* Bottom Signup Area */}
