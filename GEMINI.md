@@ -27,6 +27,7 @@ This project follows a lightweight version of **Feature-Sliced Design (FSD)**.
 ├── shared/       # Shared modules (UI Components, Utilities, Constants)
 │   ├── ui/       # Reusable Atomic Components (Button, Avatar, etc.)
 │   ├── services/ # External API services
+│   ├── mappers/  # Type mapping (Backend DTO ↔ Frontend)
 │   ├── constants/# Global constants
 │   └── types/    # Global type definitions
 ├── docs/         # Project documentation (Requirements, Reports)
@@ -72,16 +73,29 @@ Use the signature colors defined in `tailwind.config.js`.
 | **Manner Temp** | Seller's reliability score (Temperature). | `temperature`, `mannerTemp` |
 | **AI Write** | Feature that auto-generates product descriptions using AI. | `AIProductWrite`, `generateDescription` |
 
-## 6. Documentation Map
-Key documents for reference are located in `docs/working/`.
-- `1_Functional_Definition.md`: Detailed Functional Requirements
-- `RFP_02_Work_Report.md`: Recent Implementation & Change Report
+## 7. SOLID Principles (Frontend Focused)
 
-## 7. Guidelines for AI Agents
-1. **User Experience First**: Prioritize "how it feels" over just "how it works". (e.g., Animation on popup entry, Tactile feedback on click).
-2. **Respect Existing Code**: Reuse existing `shared/ui` components and patterns; do not reinvent the wheel.
-3. **Proactive Suggestions**: Do not hesitate to suggest better UI/UX alternatives (e.g., Skeleton UIs, Toast messages).
-4. **Use Absolute Paths**: Always use and verify `@/` alias paths for file references.
+### 7.1 SRP - Single Responsibility
+- **UI Components**: Render HTML/CSS only.
+- **Hooks**: Manage state and effects.
+- **Mappers**: Transform data.
+
+### 7.2 Patterns for Gemini
+- **Tactile UI**: Ensure click feedback (scale/shadow).
+- **Glassmorphism**: Use `backdrop-blur` for overlays.
+- **Skeleton Loading**: Always provide visual loading states.
+- **Error States**: User-friendly error messages (no alert boxes).
+
+### 7.3 Do Not Touch
+- **Backend Logic**: Leave for Claude/Codex.
+- **Complex Refactoring**: Leave for specific refactoring tasks.
+
+## 8. Guidelines for AI Agents (Gemini Specific)
+1. **Visual Excellence**: Your primary goal is "WOW" factor.
+2. **User Experience**: Prioritize "how it feels" (animations, transitions).
+3. **Respect Design**: Use `index.css` variables and Tailwind config colors.
+4. **Absolute Paths**: Always use `@/`.
+5. **No Logic in UI**: Move logic to hooks (`features/*/hooks/`).
 
 ---
-*Last Updated: 2026-01-20 by Gemini*
+*Last Updated: 2026-01-21 by Gemini (UI/UX Focus)*

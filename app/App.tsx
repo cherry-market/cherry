@@ -23,8 +23,8 @@ const App: React.FC = () => {
           <ChatDetail />
         </AuthGuard>
       } />
-      {/* TODO: ProductDetailWrapper still needs API integration */}
-      <Route path={ROUTES.PRODUCT_DETAIL_PATTERN} element={<ProductDetailWrapper products={[]} />} />
+
+      <Route path={ROUTES.PRODUCT_DETAIL_PATTERN} element={<ProductDetailWrapper />} />
 
       <Route path={ROUTES.PRODUCT_WRITE} element={
         <AuthGuard>
