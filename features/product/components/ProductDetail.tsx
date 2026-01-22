@@ -40,7 +40,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F6FA] flex flex-col pb-32 animate-[fadeIn_0.3s_ease-out] relative">
+    <div className="min-h-screen bg-[#F5F6FA] flex flex-col pb-32 animate-fadeIn relative">
       {/* Header (Absolute) */}
       <header className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center">
         <Button variant="icon" onClick={onBack}>
@@ -218,15 +218,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
         onCancel={() => setChatAlertOpen(false)}
       />
 
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.98); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .pb-safe {
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-        }
-      `}</style>
     </div>
   );
 };

@@ -10,6 +10,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   const initialIsLiked = product.isLiked ?? false;
+  // Only show count if backend provides it
   const pickCount = product.likes;
   const pickButtonClassName = 'p-1 -mr-1 rounded-full transition-colors';
 

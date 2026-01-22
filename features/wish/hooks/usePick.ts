@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { wishApi } from '@/shared/services/wishApi';
 import { useAuthStore } from '@/features/auth/model/authStore';
+import { useWishStore } from '@/features/wish/model/wishStore';
 
 interface UsePickParams {
     productId: number;
@@ -12,13 +13,17 @@ interface UsePickParams {
 export const usePick = ({ productId, initialIsLiked = false }: UsePickParams) => {
     const navigate = useNavigate();
     const { isLoggedIn } = useAuthStore();
-    const [isLiked, setIsLiked] = useState(initialIsLiked);
+    const isLiked = useWishStore(state => state.isLiked(productId));
+    const addLikeToStore = useWishStore(state => state.addLike);
+    const removeLikeFromStore = useWishStore(state => state.removeLike);
     const [isLoading, setIsLoading] = useState(false);
     const [loginAlertOpen, setLoginAlertOpen] = useState(false);
 
     useEffect(() => {
-        setIsLiked(initialIsLiked);
-    }, [initialIsLiked, productId]);
+        if (initialIsLiked && !isLiked) {
+            addLikeToStore(productId);
+        }
+    }, [initialIsLiked, productId, isLiked, addLikeToStore]);
 
     const closeLoginAlert = useCallback(() => {
         setLoginAlertOpen(false);
@@ -39,7 +44,11 @@ export const usePick = ({ productId, initialIsLiked = false }: UsePickParams) =>
         }
 
         const nextLiked = !isLiked;
-        setIsLiked(nextLiked);
+        if (nextLiked) {
+            addLikeToStore(productId);
+        } else {
+            removeLikeFromStore(productId);
+        }
         setIsLoading(true);
 
         try {
@@ -49,11 +58,22 @@ export const usePick = ({ productId, initialIsLiked = false }: UsePickParams) =>
                 await wishApi.removeLike(productId);
             }
         } catch (error) {
-            setIsLiked(!nextLiked);
+            if (nextLiked) {
+                removeLikeFromStore(productId);
+            } else {
+                addLikeToStore(productId);
+            }
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, isLoggedIn, isLiked, productId]);
+    }, [
+        isLoading,
+        isLoggedIn,
+        isLiked,
+        productId,
+        addLikeToStore,
+        removeLikeFromStore,
+    ]);
 
     return {
         isLiked,

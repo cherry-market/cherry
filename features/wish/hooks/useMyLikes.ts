@@ -1,62 +1,70 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Product } from '@/features/product/types';
-import { ProductMapper } from '@/shared/mappers/productMapper';
 import { wishApi } from '@/shared/services/wishApi';
+import { ProductMapper } from '@/shared/mappers/productMapper';
+import { useAuthStore } from '@/features/auth/model/authStore';
+import { useWishStore } from '@/features/wish/model/wishStore';
 
-interface UseMyLikesParams {
-    limit?: number;
-    enabled?: boolean;
-}
-
-export const useMyLikes = ({ limit = 20, enabled = true }: UseMyLikesParams = {}) => {
+export const useMyLikes = () => {
+    const token = useAuthStore(state => state.token);
+    const initializeLikes = useWishStore(state => state.initializeLikes);
     const [products, setProducts] = useState<Product[]>([]);
+    const [cursor, setCursor] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [cursor, setCursor] = useState<string | null>(null);
+    const hasInitializedLikes = useRef(false);
+    const lastTokenRef = useRef<string | null>(token ?? null);
 
     const loadInitial = useCallback(async () => {
-        if (!enabled) {
-            setProducts([]);
-            setIsLoading(false);
-            setIsLoadingMore(false);
-            setError(null);
-            setCursor(null);
-            return;
-        }
         setIsLoading(true);
         setError(null);
         try {
-            const response = await wishApi.getMyLikes(null, limit);
-            const mapped = ProductMapper.toFrontendList(response.items);
-            setProducts(mapped);
+            const response = await wishApi.getMyLikes(null, 20);
+            const mappedProducts = ProductMapper.toFrontendList(response.items);
+
+            if (lastTokenRef.current !== token) {
+                hasInitializedLikes.current = false;
+                lastTokenRef.current = token ?? null;
+            }
+
+            if (!hasInitializedLikes.current) {
+                const likedIds = mappedProducts.map(product => product.id);
+                initializeLikes(likedIds);
+                hasInitializedLikes.current = true;
+            }
+
+            setProducts(mappedProducts);
             setCursor(response.nextCursor);
         } catch (err) {
-            setError(err instanceof Error ? err.message : '찜 목록을 불러오지 못했습니다.');
+            console.error('Failed to load likes:', err);
+            setError('찜 목록을 불러오는데 실패했습니다.');
         } finally {
             setIsLoading(false);
         }
-    }, [enabled, limit]);
+    }, [token, initializeLikes]);
 
     const loadMore = useCallback(async () => {
-        if (!enabled || isLoadingMore || !cursor) {
-            return;
-        }
+        if (isLoadingMore || !cursor) return;
         setIsLoadingMore(true);
         try {
-            const response = await wishApi.getMyLikes(cursor, limit);
-            const mapped = ProductMapper.toFrontendList(response.items);
-            setProducts(prev => [...prev, ...mapped]);
+            const response = await wishApi.getMyLikes(cursor, 20);
+            const mappedProducts = ProductMapper.toFrontendList(response.items);
+            setProducts(prev => [...prev, ...mappedProducts]);
             setCursor(response.nextCursor);
         } catch (err) {
-            // Ignore load-more errors to preserve existing list state
+            console.error('Failed to load more likes:', err);
         } finally {
             setIsLoadingMore(false);
         }
-    }, [cursor, enabled, isLoadingMore, limit]);
+    }, [cursor, isLoadingMore, token]);
+
+    const refresh = useCallback(async () => {
+        await loadInitial();
+    }, [loadInitial]);
 
     useEffect(() => {
-        loadInitial();
+        void loadInitial();
     }, [loadInitial]);
 
     return {
@@ -64,8 +72,8 @@ export const useMyLikes = ({ limit = 20, enabled = true }: UseMyLikesParams = {}
         isLoading,
         isLoadingMore,
         error,
-        hasMore: enabled && cursor !== null,
+        hasMore: cursor !== null,
         loadMore,
-        reload: loadInitial,
+        refresh,
     };
 };

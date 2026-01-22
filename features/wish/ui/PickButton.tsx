@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { usePick } from '@/features/wish/hooks/usePick';
@@ -34,6 +34,9 @@ export const PickButton: React.FC<PickButtonProps> = ({
     } = usePick({ productId, initialIsLiked });
     const [isPopping, setIsPopping] = useState(false);
     const previousLikedRef = useRef(isLiked);
+    
+    // Store initial isLiked state to calculate delta correctly
+    const initialStoreLikedRef = useRef(isLiked);
 
     useEffect(() => {
         if (!previousLikedRef.current && isLiked) {
@@ -64,7 +67,7 @@ export const PickButton: React.FC<PickButtonProps> = ({
         ? 'text-[#FF2E88] text-[9px] font-bold'
         : 'text-silver-metal group-hover:text-[#FF2E88] text-[9px] font-bold';
 
-    const countDelta = isLiked === initialIsLiked ? 0 : isLiked ? 1 : -1;
+    const countDelta = isLiked === initialStoreLikedRef.current ? 0 : isLiked ? 1 : -1;
     const displayCount = typeof count === 'number' ? Math.max(0, count + countDelta) : undefined;
     const countNode = isCounter && typeof displayCount === 'number'
         ? <span className={`text-[10px] ${countClassName}`}>{displayCount}</span>

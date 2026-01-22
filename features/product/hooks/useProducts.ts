@@ -1,19 +1,23 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Product } from '@/features/product/types';
 import { productApi } from '@/shared/services/productApi';
 import { ProductMapper } from '@/shared/mappers/productMapper';
 import { useAuthStore } from '@/features/auth/model/authStore';
+import { useWishStore } from '@/features/wish/model/wishStore';
 
 /**
  * useProducts - 상품 목록 데이터 로딩 및 무한 스크롤 관리
  */
 export const useProducts = () => {
     const token = useAuthStore(state => state.token);
+    const initializeLikes = useWishStore(state => state.initializeLikes);
     const [products, setProducts] = useState<Product[]>([]);
     const [cursor, setCursor] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const hasInitializedLikes = useRef(false);
+    const lastTokenRef = useRef<string | null>(token ?? null);
 
     /**
      * 초기 상품 목록 로드
@@ -26,6 +30,19 @@ export const useProducts = () => {
             const response = await productApi.getProducts(undefined, 20, token);
             const mappedProducts = ProductMapper.toFrontendList(response.items);
 
+            if (lastTokenRef.current !== token) {
+                hasInitializedLikes.current = false;
+                lastTokenRef.current = token ?? null;
+            }
+
+            if (!hasInitializedLikes.current) {
+                const likedIds = mappedProducts
+                    .filter(product => product.isLiked)
+                    .map(product => product.id);
+                initializeLikes(likedIds);
+                hasInitializedLikes.current = true;
+            }
+
             setProducts(mappedProducts);
             setCursor(response.nextCursor);
         } catch (err) {
@@ -34,7 +51,7 @@ export const useProducts = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [token]);
+    }, [token, initializeLikes]);
 
     /**
      * 다음 페이지 로드 (무한 스크롤용)

@@ -10,6 +10,7 @@ export interface ProductSummary {
     thumbnailUrl: string;
     createdAt: string; // ISO-8601 string
     isLiked: boolean;
+    likeCount: number;
 }
 
 export interface ProductListResponse {
@@ -31,6 +32,7 @@ export interface ProductDetail {
     };
     createdAt: string;
     isLiked: boolean;
+    likeCount: number;
 }
 
 export const productApi = {

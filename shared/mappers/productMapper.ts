@@ -23,7 +23,7 @@ export class ProductMapper {
 
             // 백엔드에서 미제공 필드 → 기본값
             category: '미분류',
-            likes: 0,
+            likes: backend.likeCount,
             isLiked: backend.isLiked,
             seller: {
                 name: '판매자',
@@ -60,7 +60,7 @@ export class ProductMapper {
 
             // 미제공 필드 → 기본값
             category: '미분류',
-            likes: 0,
+            likes: backend.likeCount,
             isLiked: backend.isLiked,
             tags: [],
             artist: undefined,
