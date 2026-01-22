@@ -9,6 +9,7 @@ export interface Product {
   category: string;
   status: ProductStatus;
   likes: number;
+  isLiked?: boolean;
   uploadedTime: string; // e.g., "2 hours ago"
   seller: {
     name: string;
@@ -38,4 +39,3 @@ export interface User {
   name: string;
   avatar: string;
 }
-

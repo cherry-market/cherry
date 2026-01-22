@@ -8,7 +8,7 @@ import { ProductList } from '@/features/product/components/ProductList';
 import { TrendingSection } from '../components/TrendingSection';
 import { ProductWriteButton } from '../components/ProductWriteButton';
 import { ChatList } from '@/features/chat/components/ChatList';
-import { WishList } from '@/features/wishlist/pages/WishList';
+import { MyPickPage } from '@/features/wish/ui/MyPickPage';
 import { MyPage } from '@/features/mypage/pages/MyPage';
 import { FilterSheet } from '@/features/product/components/FilterSheet';
 import { BannerCarousel } from '../components/BannerCarousel';
@@ -202,7 +202,7 @@ export const Home: React.FC = () => {
             )}
 
             {activeTab === MAIN_TABS.CHAT && <ChatList />}
-            {activeTab === MAIN_TABS.LIKES && <WishList products={allProducts} />}
+            {activeTab === MAIN_TABS.LIKES && <MyPickPage />}
             {activeTab === MAIN_TABS.MY && <MyPage />}
 
             <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />

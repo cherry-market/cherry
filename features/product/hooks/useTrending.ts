@@ -2,11 +2,13 @@ import { useState, useCallback } from 'react';
 import type { Product } from '@/features/product/types';
 import { productApi } from '@/shared/services/productApi';
 import { ProductMapper } from '@/shared/mappers/productMapper';
+import { useAuthStore } from '@/features/auth/model/authStore';
 
 /**
  * useTrending - 트렌딩 상품 데이터 로딩 (useProducts와 동일한 패턴)
  */
 export const useTrending = (limit: number = 10) => {
+    const token = useAuthStore(state => state.token);
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -16,7 +18,7 @@ export const useTrending = (limit: number = 10) => {
         setError(null);
 
         try {
-            const response = await productApi.getTrending();
+            const response = await productApi.getTrending(token);
             const mapped = ProductMapper.toFrontendList(response.items);
             setProducts(mapped.slice(0, limit));
         } catch (err) {
@@ -25,7 +27,7 @@ export const useTrending = (limit: number = 10) => {
         } finally {
             setIsLoading(false);
         }
-    }, []); // limit은 closure로 접근, dependency 없음
+    }, [limit, token]);
 
     return {
         products,

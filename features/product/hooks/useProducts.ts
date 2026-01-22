@@ -2,11 +2,13 @@ import { useState, useCallback, useEffect } from 'react';
 import type { Product } from '@/features/product/types';
 import { productApi } from '@/shared/services/productApi';
 import { ProductMapper } from '@/shared/mappers/productMapper';
+import { useAuthStore } from '@/features/auth/model/authStore';
 
 /**
  * useProducts - 상품 목록 데이터 로딩 및 무한 스크롤 관리
  */
 export const useProducts = () => {
+    const token = useAuthStore(state => state.token);
     const [products, setProducts] = useState<Product[]>([]);
     const [cursor, setCursor] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +23,7 @@ export const useProducts = () => {
         setError(null);
 
         try {
-            const response = await productApi.getProducts(undefined, 20);
+            const response = await productApi.getProducts(undefined, 20, token);
             const mappedProducts = ProductMapper.toFrontendList(response.items);
 
             setProducts(mappedProducts);
@@ -32,7 +34,7 @@ export const useProducts = () => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [token]);
 
     /**
      * 다음 페이지 로드 (무한 스크롤용)
@@ -43,7 +45,7 @@ export const useProducts = () => {
         setIsLoadingMore(true);
 
         try {
-            const response = await productApi.getProducts(cursor, 20);
+            const response = await productApi.getProducts(cursor, 20, token);
             const mappedProducts = ProductMapper.toFrontendList(response.items);
 
             setProducts(prev => [...prev, ...mappedProducts]);
@@ -54,7 +56,7 @@ export const useProducts = () => {
         } finally {
             setIsLoadingMore(false);
         }
-    }, [cursor, isLoadingMore]);
+    }, [cursor, isLoadingMore, token]);
 
     /**
      * 수동 새로고침
