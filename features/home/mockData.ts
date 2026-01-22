@@ -24,7 +24,7 @@ export const BANNERS: BannerItem[] = [
     title: "Cherry's Pick: \nRare Photocards",
     subtitle: '이번 주 가장 핫한 레어 포카 모음전',
     fallbackImage:
-      'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1736860928537-d791e01485bf?q=80&w=800&auto=format&fit=crop',
     prompt:
       'A collection of rare holographic K-pop photocards arranged on a clean white table, rainbow reflections, top down view, high quality detail',
   },

@@ -1,7 +1,8 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface User {
-    id: string;
+    id: number;
     nickname: string;
     email: string;
     profileImage?: string;
@@ -10,13 +11,22 @@ interface User {
 interface AuthState {
     isLoggedIn: boolean;
     user: User | null;
-    login: (user: User) => void;
+    token: string | null;
+    login: (user: User, token: string) => void;
     logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-    isLoggedIn: false,
-    user: null,
-    login: (user) => set({ isLoggedIn: true, user }),
-    logout: () => set({ isLoggedIn: false, user: null }),
-}));
+export const useAuthStore = create<AuthState>()(
+    persist(
+        (set) => ({
+            isLoggedIn: false,
+            user: null,
+            token: null,
+            login: (user, token) => set({ isLoggedIn: true, user, token }),
+            logout: () => set({ isLoggedIn: false, user: null, token: null }),
+        }),
+        {
+            name: 'cherry-auth-storage',
+        }
+    )
+);

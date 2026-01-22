@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import type { Product } from '@/features/product/types';
-import { MOCK_PRODUCTS } from '@/features/product/mockData';
 import { Home } from '@/features/home/pages/Home';
 import { ProductDetailWrapper } from '@/features/product/pages/ProductDetailWrapper';
 import { ProductWrite } from '@/features/product/pages/ProductWrite';
@@ -14,12 +12,9 @@ import { SignupPage } from '@/features/auth/pages/SignupPage';
 import { AuthGuard } from '@/features/auth/components/AuthGuard';
 
 const App: React.FC = () => {
-  // Global Data State
-  const [allProducts, setAllProducts] = useState<Product[]>(MOCK_PRODUCTS);
-
   return (
     <Routes>
-      <Route path={ROUTES.ROOT} element={<Home allProducts={allProducts} onNewProduct={() => { }} />} />
+      <Route path={ROUTES.ROOT} element={<Home />} />
       <Route path={ROUTES.LOGIN} element={<LoginPage />} />
       <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
 
@@ -28,7 +23,8 @@ const App: React.FC = () => {
           <ChatDetail />
         </AuthGuard>
       } />
-      <Route path={ROUTES.PRODUCT_DETAIL_PATTERN} element={<ProductDetailWrapper products={allProducts} />} />
+
+      <Route path={ROUTES.PRODUCT_DETAIL_PATTERN} element={<ProductDetailWrapper />} />
 
       <Route path={ROUTES.PRODUCT_WRITE} element={
         <AuthGuard>

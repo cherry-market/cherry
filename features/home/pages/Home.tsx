@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, Loader2, SlidersHorizontal } from 'lucide-react';
-import type { FilterState, Product } from '@/features/product/types';
-import { useAuthStore } from '@/features/auth/model/authStore';
+import { Loader2, SlidersHorizontal } from 'lucide-react';
+import type { FilterState } from '@/features/product/types';
+import { useProducts } from '@/features/product/hooks/useProducts';
 import { Header } from '../components/Header';
 import { ProductList } from '@/features/product/components/ProductList';
 import { TrendingSection } from '../components/TrendingSection';
@@ -16,18 +16,13 @@ import { BottomNavigation } from '@/shared/ui/BottomNavigation';
 import { MAIN_TABS } from '@/shared/constants/navigation';
 import { ROUTES } from '@/shared/constants/routes';
 import {
-    HOME_ITEMS_PER_PAGE,
     HOME_INFINITE_SCROLL_OFFSET_PX,
-    HOME_LOAD_MORE_DELAY_MS,
     HOME_SCROLL_TOP_THRESHOLD_PX,
 } from '../constants';
 
-interface HomeProps {
-    allProducts: Product[];
-    onNewProduct: () => void;
-}
 
-export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
+
+export const Home: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -35,10 +30,15 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
     // Navigation State
     const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || MAIN_TABS.HOME);
 
-    // Data State
-    const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
+    // Data State - Custom Hook으로 추출
+    const {
+        products: allProducts,
+        isLoading,
+        isLoadingMore,
+        error: apiError,
+        hasMore,
+        loadMore,
+    } = useProducts();
 
     // UI State
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -75,42 +75,6 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
         setSearchParams(params);
     };
 
-    // Initial Load & Filter Logic
-    useEffect(() => {
-        // Reset visible products when filter changes
-        window.scrollTo(0, 0);
-
-        let result = [...allProducts];
-
-        // Search
-        if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            result = result.filter(p =>
-                p.title.toLowerCase().includes(q) ||
-                p.tags.some(t => t.toLowerCase().includes(q)) ||
-                (p.artist && p.artist.toLowerCase().includes(q))
-            );
-        }
-
-        // Filter
-        if (currentFilter.status !== 'ALL') result = result.filter(p => p.status === currentFilter.status);
-        if (currentFilter.category !== 'ALL') result = result.filter(p => p.category === currentFilter.category);
-        if (currentFilter.tradeType !== 'ALL') result = result.filter(p => p.tradeType === currentFilter.tradeType);
-        if (currentFilter.minPrice > 0) result = result.filter(p => p.price >= currentFilter.minPrice);
-        if (currentFilter.maxPrice > 0) result = result.filter(p => p.price <= currentFilter.maxPrice);
-
-        // Sort
-        if (currentFilter.sortBy === 'LOW_PRICE') result.sort((a, b) => a.price - b.price);
-        else if (currentFilter.sortBy === 'HIGH_PRICE') result.sort((a, b) => b.price - a.price);
-        else if (currentFilter.sortBy === 'POPULAR') {
-            result.sort((a, b) => b.likes - a.likes);
-        }
-
-        const firstBatch = result.slice(0, HOME_ITEMS_PER_PAGE);
-        setVisibleProducts(firstBatch);
-        setHasMore(result.length > HOME_ITEMS_PER_PAGE);
-    }, [allProducts, searchQuery, JSON.stringify(currentFilter)]);
-
     // Scroll Detection
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > HOME_SCROLL_TOP_THRESHOLD_PX);
@@ -118,42 +82,10 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Infinite Scroll
+    // Infinite Scroll - Custom Hook 사용
     const loadMoreProducts = useCallback(() => {
-        if (isLoadingMore || !hasMore) return;
-        setIsLoadingMore(true);
-
-        setTimeout(() => {
-            setVisibleProducts(prev => {
-                const currentLength = prev.length;
-                // Re-run filter logic to find next batch (Inefficient but robust for Mock)
-                let result = [...allProducts];
-
-                if (searchQuery) {
-                    const q = searchQuery.toLowerCase();
-                    result = result.filter(p =>
-                        p.title.toLowerCase().includes(q) ||
-                        p.tags.some(t => t.toLowerCase().includes(q)) ||
-                        (p.artist && p.artist.toLowerCase().includes(q))
-                    );
-                }
-                if (currentFilter.status !== 'ALL') result = result.filter(p => p.status === currentFilter.status);
-                if (currentFilter.category !== 'ALL') result = result.filter(p => p.category === currentFilter.category);
-                if (currentFilter.tradeType !== 'ALL') result = result.filter(p => p.tradeType === currentFilter.tradeType);
-                if (currentFilter.minPrice > 0) result = result.filter(p => p.price >= currentFilter.minPrice);
-                if (currentFilter.maxPrice > 0) result = result.filter(p => p.price <= currentFilter.maxPrice);
-
-                if (currentFilter.sortBy === 'LOW_PRICE') result.sort((a, b) => a.price - b.price);
-                else if (currentFilter.sortBy === 'HIGH_PRICE') result.sort((a, b) => b.price - a.price);
-                else if (currentFilter.sortBy === 'POPULAR') result.sort((a, b) => b.likes - a.likes);
-
-                const nextBatch = result.slice(currentLength, currentLength + HOME_ITEMS_PER_PAGE);
-                if (currentLength + nextBatch.length >= result.length) setHasMore(false);
-                return [...prev, ...nextBatch];
-            });
-            setIsLoadingMore(false);
-        }, HOME_LOAD_MORE_DELAY_MS);
-    }, [isLoadingMore, hasMore, allProducts, searchQuery, JSON.stringify(currentFilter)]);
+        loadMore();
+    }, [loadMore]);
 
     // Scroll ending listener
     useEffect(() => {
@@ -171,11 +103,24 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [loadMoreProducts, isLoadingMore, hasMore]);
 
-
-    const { isLoggedIn } = useAuthStore();
+    // 클라이언트 사이드 필터링 (백엔드 필터링 미지원 시 임시)
+    const filteredProducts = allProducts.filter(p => {
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const matchesSearch = p.title.toLowerCase().includes(q) ||
+                p.tags.some(t => t.toLowerCase().includes(q)) ||
+                (p.artist && p.artist.toLowerCase().includes(q));
+            if (!matchesSearch) return false;
+        }
+        if (currentFilter.status !== 'ALL' && p.status !== currentFilter.status) return false;
+        if (currentFilter.category !== 'ALL' && p.category !== currentFilter.category) return false;
+        if (currentFilter.tradeType !== 'ALL' && p.tradeType !== currentFilter.tradeType) return false;
+        if (currentFilter.minPrice > 0 && p.price < currentFilter.minPrice) return false;
+        if (currentFilter.maxPrice > 0 && p.price > currentFilter.maxPrice) return false;
+        return true;
+    });
 
     const handleTabChange = (tab: string) => {
-        // Removed automatic login redirection to support LoginPrompt UI in tabs
         setActiveTab(tab);
         if (tab === MAIN_TABS.HOME) {
             window.scrollTo(0, 0);
@@ -183,8 +128,29 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
         }
     };
 
+    if (apiError) {
+        return (
+            <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl flex flex-col items-center justify-center px-4">
+                <p className="text-coolGray text-center mb-4">{apiError}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-cherry text-white rounded-lg"
+                >
+                    다시 시도
+                </button>
+            </div>
+        );
+    }
+
+    const isInitialLoading = isLoading && allProducts.length === 0;
+
     return (
         <div className="max-w-[430px] mx-auto bg-white min-h-screen shadow-2xl overflow-hidden relative pb-20 border-x border-gray-100">
+            {isInitialLoading && (
+                <div className="absolute inset-0 bg-white z-50 flex items-center justify-center">
+                    <Loader2 size={48} className="animate-spin text-cherry" />
+                </div>
+            )}
             {activeTab === MAIN_TABS.HOME && (
                 <>
                     <Header
@@ -201,13 +167,11 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
 
                     {!searchQuery && (
                         <TrendingSection
-                            products={allProducts.slice(0, 8)} // Mock trending data
                             onProductClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
                         />
                     )}
 
                     <div className="px-4 py-2">
-                        {/* Normal List Section Title */}
                         <div className="mb-3 mt-2 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-ink">체리픽</h3>
                             <button
@@ -218,11 +182,13 @@ export const Home: React.FC<HomeProps> = ({ allProducts, onNewProduct }) => {
                             </button>
                         </div>
 
-                        <ProductList
-                            products={visibleProducts}
-                            onItemClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
-                            emptyMessage="검색 결과가 없어요"
-                        />
+                        {!isInitialLoading && (
+                            <ProductList
+                                products={filteredProducts}
+                                onItemClick={(p) => navigate(ROUTES.PRODUCT_DETAIL(p.id))}
+                                emptyMessage="검색 결과가 없어요"
+                            />
+                        )}
 
                         {isLoadingMore && (
                             <div className="py-8 flex justify-center w-full">

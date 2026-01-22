@@ -6,6 +6,8 @@ import { Button } from '@/shared/ui/Button';
 import { Avatar } from '@/shared/ui/Avatar';
 import { useAuthStore } from '../model/authStore';
 import { ROUTES } from '@/shared/constants/routes';
+import * as authApi from '@/shared/services/authApi';
+import { isValidEmail, isValidPassword, isValidNickname } from '@/shared/utils/validation';
 
 export const SignupPage: React.FC = () => {
     const navigate = useNavigate();
@@ -21,6 +23,8 @@ export const SignupPage: React.FC = () => {
     });
 
     const [profileImage, setProfileImage] = useState<string | null>(null);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -31,36 +35,57 @@ export const SignupPage: React.FC = () => {
         setProfileImage('https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=150&q=80');
     };
 
-    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isEmailValid = EMAIL_REGEX.test(formData.email);
+    const emailValid = isValidEmail(formData.email);
+    const passwordValid = isValidPassword(formData.password);
     const isPasswordMatch = formData.password === formData.passwordConfirm && formData.password.length > 0;
+    const nicknameValid = isValidNickname(formData.nickname);
 
     const isValid =
-        isEmailValid &&
-        formData.password.length >= 6 &&
+        emailValid &&
+        passwordValid &&
         isPasswordMatch &&
-        formData.nickname.length > 0;
+        nicknameValid;
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!isValid) return;
 
-        // Simulate API Call
-        setTimeout(() => {
-            // Auto login after signup
-            login({
-                id: formData.email.split('@')[0], // Use email prefix as ID for now
-                email: formData.email,
-                nickname: formData.nickname,
-                profileImage: profileImage || undefined
-            });
-            alert('회원가입을 환영합니다! 🍒');
+        setLoading(true);
+        setError('');
 
+        try {
+            // 1. 회원가입 API 호출
+            const userResponse = await authApi.signup({
+                email: formData.email,
+                password: formData.password,
+                nickname: formData.nickname
+            });
+
+            // 2. 회원가입 후 자동 로그인
+            const tokenResponse = await authApi.login({
+                email: formData.email,
+                password: formData.password
+            });
+
+            // 3. 로그인 상태 업데이트
+            login({
+                id: userResponse.id,
+                email: userResponse.email,
+                nickname: userResponse.nickname,
+                profileImage: userResponse.profileImageUrl || undefined
+            }, tokenResponse.accessToken);
+
+            // 4. 페이지 이동
             if (fromTab) {
                 navigate(ROUTES.ROOT, { state: { activeTab: fromTab } });
             } else {
                 navigate(ROUTES.ROOT);
             }
-        }, 500);
+        } catch (err) {
+            console.error('Signup failed:', err);
+            setError(err instanceof Error ? err.message : '회원가입에 실패했습니다');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -92,6 +117,12 @@ export const SignupPage: React.FC = () => {
 
                 {/* Fields */}
                 <div className="space-y-4">
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
+                    
                     <Input
                         label="이메일"
                         name="email"
@@ -99,7 +130,7 @@ export const SignupPage: React.FC = () => {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="example@cherry.com"
-                        error={formData.email.length > 0 && !isEmailValid ? "올바른 이메일 형식이 아니에요" : undefined}
+                        error={formData.email.length > 0 && !emailValid ? "올바른 이메일 형식이 아니에요" : undefined}
                     />
 
                     <Input
@@ -108,7 +139,8 @@ export const SignupPage: React.FC = () => {
                         type="password"
                         value={formData.password}
                         onChange={handleChange}
-                        placeholder="6자 이상 입력해주세요"
+                        placeholder="8자 이상 입력해주세요"
+                        error={formData.password.length > 0 && !passwordValid ? "8자 이상 입력해주세요" : undefined}
                     />
 
                     <Input
@@ -127,6 +159,7 @@ export const SignupPage: React.FC = () => {
                         value={formData.nickname}
                         onChange={handleChange}
                         placeholder="활동할 닉네임을 입력해주세요"
+                        error={formData.nickname.length > 30 ? "닉네임은 30자 이하여야 해요" : undefined}
                     />
                 </div>
 
@@ -136,10 +169,10 @@ export const SignupPage: React.FC = () => {
                         variant="primary"
                         fullWidth
                         size="lg"
-                        disabled={!isValid}
+                        disabled={!isValid || loading}
                         onClick={handleSubmit}
                     >
-                        가입 완료
+                        {loading ? '가입 중...' : '가입 완료'}
                     </Button>
                 </div>
             </div>
