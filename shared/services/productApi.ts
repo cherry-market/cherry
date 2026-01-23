@@ -8,6 +8,11 @@ export interface ProductSummary {
     status: 'SELLING' | 'RESERVED' | 'SOLD';
     tradeType: 'DIRECT' | 'DELIVERY' | 'BOTH';
     thumbnailUrl: string;
+    category: {
+        id: number;
+        code: string;
+        displayName: string;
+    } | null;
     createdAt: string; // ISO-8601 string
     isLiked: boolean;
     likeCount: number;
@@ -25,6 +30,11 @@ export interface ProductDetail {
     status: 'SELLING' | 'RESERVED' | 'SOLD';
     tradeType: 'DIRECT' | 'DELIVERY' | 'BOTH';
     imageUrls: string[];
+    category: {
+        id: number;
+        code: string;
+        displayName: string;
+    } | null;
     description: string;
     seller: {
         id: number;
