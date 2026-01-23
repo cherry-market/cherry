@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, RefreshCw, Check } from 'lucide-react';
 import type { FilterState, ProductStatus } from '../types';
-import { CATEGORIES } from '@/shared/constants/categories';
 import { Button } from '@/shared/ui/Button';
 import {
   PRODUCT_FILTER_DEFAULT,
@@ -11,23 +10,25 @@ import {
   PRODUCT_TRADE_TYPE_LABELS,
   PRODUCT_TRADE_TYPE_OPTIONS,
 } from '../constants';
+import type { Category } from '@/shared/services/categoryApi';
 
 interface FilterSheetProps {
   isOpen: boolean;
   onClose: () => void;
   currentFilter: FilterState;
   onApply: (filter: FilterState) => void;
+  categories: Category[];
 }
 
-export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, currentFilter, onApply }) => {
+export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, currentFilter, onApply, categories }) => {
   const [localFilter, setLocalFilter] = useState<FilterState>(currentFilter);
 
   const handleStatusToggle = (status: ProductStatus | 'ALL') => {
     setLocalFilter(prev => ({ ...prev, status }));
   };
 
-  const handleCategoryToggle = (category: string) => {
-    setLocalFilter(prev => ({ ...prev, category }));
+  const handleCategoryToggle = (categoryCode: string | 'ALL') => {
+    setLocalFilter(prev => ({ ...prev, categoryCode }));
   };
 
   const handleReset = () => {
@@ -84,12 +85,12 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
           <section>
             <h3 className="text-sm font-bold text-coolGray mb-3 uppercase tracking-wider">카테고리</h3>
             <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map(cat => {
-                const isSelected = localFilter.category === cat || (cat === '전체' && localFilter.category === 'ALL');
+              {[{ code: 'ALL', displayName: '전체' } as const, ...categories].map(cat => {
+                const isSelected = localFilter.categoryCode === cat.code;
                 return (
                   <button
-                    key={cat}
-                    onClick={() => handleCategoryToggle(cat === '전체' ? 'ALL' : cat)}
+                    key={cat.code}
+                    onClick={() => handleCategoryToggle(cat.code)}
                     className={`
                       px-4 py-2 rounded-[16px] text-sm font-bold transition-all active:scale-95 border
                       ${isSelected
@@ -97,7 +98,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onClose, curre
                         : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}
                     `}
                   >
-                    {cat}
+                    {cat.displayName}
                   </button>
                 );
               })}

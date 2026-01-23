@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, SlidersHorizontal } from 'lucide-react';
 import type { FilterState } from '@/features/product/types';
 import { useProducts } from '@/features/product/hooks/useProducts';
+import { useCategories } from '@/features/category/hooks/useCategories';
 import { Header } from '../components/Header';
 import { ProductList } from '@/features/product/components/ProductList';
 import { TrendingSection } from '../components/TrendingSection';
@@ -31,14 +32,7 @@ export const Home: React.FC = () => {
     const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || MAIN_TABS.HOME);
 
     // Data State - Custom Hook으로 추출
-    const {
-        products: allProducts,
-        isLoading,
-        isLoadingMore,
-        error: apiError,
-        hasMore,
-        loadMore,
-    } = useProducts();
+    const { categories } = useCategories();
 
     // UI State
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -48,18 +42,27 @@ export const Home: React.FC = () => {
     const searchQuery = searchParams.get('q') || '';
     const currentFilter: FilterState = {
         status: (searchParams.get('status') as any) || 'ALL',
-        category: (searchParams.get('category') as any) || 'ALL',
+        categoryCode: (searchParams.get('categoryCode') as any) || 'ALL',
         tradeType: (searchParams.get('tradeType') as any) || 'ALL',
         minPrice: Number(searchParams.get('minPrice')) || 0,
         maxPrice: Number(searchParams.get('maxPrice')) || 0,
         sortBy: (searchParams.get('sortBy') as any) || 'LATEST',
     };
 
+    const {
+        products: allProducts,
+        isLoading,
+        isLoadingMore,
+        error: apiError,
+        hasMore,
+        loadMore,
+    } = useProducts(currentFilter);
+
     const updateFilter = (newFilter: FilterState) => {
         const params: Record<string, string> = {};
         if (searchQuery) params.q = searchQuery;
         if (newFilter.status !== 'ALL') params.status = newFilter.status;
-        if (newFilter.category !== 'ALL') params.category = newFilter.category;
+        if (newFilter.categoryCode !== 'ALL') params.categoryCode = newFilter.categoryCode;
         if (newFilter.tradeType !== 'ALL') params.tradeType = newFilter.tradeType;
         if (newFilter.minPrice > 0) params.minPrice = newFilter.minPrice.toString();
         if (newFilter.maxPrice > 0) params.maxPrice = newFilter.maxPrice.toString();
@@ -112,11 +115,6 @@ export const Home: React.FC = () => {
                 (p.artist && p.artist.toLowerCase().includes(q));
             if (!matchesSearch) return false;
         }
-        if (currentFilter.status !== 'ALL' && p.status !== currentFilter.status) return false;
-        if (currentFilter.category !== 'ALL' && p.category !== currentFilter.category) return false;
-        if (currentFilter.tradeType !== 'ALL' && p.tradeType !== currentFilter.tradeType) return false;
-        if (currentFilter.minPrice > 0 && p.price < currentFilter.minPrice) return false;
-        if (currentFilter.maxPrice > 0 && p.price > currentFilter.maxPrice) return false;
         return true;
     });
 
@@ -159,8 +157,9 @@ export const Home: React.FC = () => {
                         isScrolled={isScrolled}
                         showBackButton={!!searchQuery}
                         onBack={() => handleSearch('')}
-                        activeCategory={currentFilter.category === 'ALL' ? '전체' : currentFilter.category}
-                        onCategoryChange={(cat) => updateFilter({ ...currentFilter, category: cat === '전체' ? 'ALL' : cat })}
+                        activeCategory={currentFilter.categoryCode}
+                        categories={categories}
+                        onCategoryChange={(code) => updateFilter({ ...currentFilter, categoryCode: code })}
                     />
 
                     {!searchQuery && <BannerCarousel />}
@@ -213,6 +212,7 @@ export const Home: React.FC = () => {
                     onClose={() => setIsFilterOpen(false)}
                     currentFilter={currentFilter}
                     onApply={updateFilter}
+                    categories={categories}
                 />
             )}
         </div>

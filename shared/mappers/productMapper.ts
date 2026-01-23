@@ -22,7 +22,7 @@ export class ProductMapper {
         avatar: '/cherry_logo_profile.svg',
         temperature: 36.5,
       },
-      tags: [],
+      tags: backend.tags ?? [],
       artist: undefined,
     };
   }
@@ -46,7 +46,7 @@ export class ProductMapper {
       category: backend.category?.displayName ?? '미분류',
       likes: backend.likeCount,
       isLiked: backend.isLiked,
-      tags: [],
+      tags: backend.tags ?? [],
       artist: undefined,
     };
   }
