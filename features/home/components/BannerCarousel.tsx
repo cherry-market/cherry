@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { generateGoodsImage } from '@/shared/services/geminiService';
 import { BANNERS } from '../mockData';
 import { BANNER_CAROUSEL_INTERVAL_MS } from '../constants';
 
@@ -23,10 +22,7 @@ export const BannerCarousel: React.FC = () => {
 
         setGenerating(prev => ({ ...prev, [banner.id]: true }));
         try {
-          const generatedUrl = await generateGoodsImage(banner.prompt, "16:9");
-          if (generatedUrl) {
-            setImages(prev => ({ ...prev, [banner.id]: generatedUrl }));
-          }
+          // Legacy demo AI image generation removed.
         } catch (e) {
           console.error("Failed to generate banner image", e);
         } finally {
@@ -45,8 +41,7 @@ export const BannerCarousel: React.FC = () => {
 
         {/* Slides */}
         {BANNERS.map((banner, index) => {
-          const displayImage = images[banner.id] || banner.fallbackImage;
-          const isAiImage = !!images[banner.id];
+          const displayImage = banner.fallbackImage;
 
           return (
             <div
@@ -60,13 +55,6 @@ export const BannerCarousel: React.FC = () => {
                   className={`w-full h-full object-cover transition-transform duration-[20s] ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-
-                {isAiImage && (
-                  <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1 border border-white/20">
-                    <Sparkles size={10} className="text-cherry" />
-                    <span>AI Generated</span>
-                  </div>
-                )}
               </div>
 
               <div className="absolute inset-0 flex flex-col justify-center px-6 text-white">
