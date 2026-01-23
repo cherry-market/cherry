@@ -18,6 +18,17 @@ export interface ProductListResponse {
     nextCursor: string | null;
 }
 
+export type ProductSortBy = 'LATEST' | 'LOW_PRICE' | 'HIGH_PRICE';
+
+export interface ProductListFilters {
+    status?: 'SELLING' | 'RESERVED' | 'SOLD';
+    categoryCode?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    tradeType?: 'DIRECT' | 'DELIVERY' | 'BOTH';
+    sortBy?: ProductSortBy;
+}
+
 export interface ProductDetail {
     id: number;
     title: string;
@@ -41,12 +52,30 @@ export const productApi = {
      * @param cursor - 다음 페이지 커서 (선택)
      * @param limit - 페이지당 항목 수 (기본값: 20, 최대: 50)
      */
-    getProducts: (cursor?: string, limit = 20, token?: string | null) => {
+    getProducts: (cursor?: string, limit = 20, token?: string | null, filters?: ProductListFilters) => {
         const params = new URLSearchParams();
         if (cursor) {
             params.append('cursor', cursor);
         }
         params.append('limit', String(limit));
+        if (filters?.status) {
+            params.append('status', filters.status);
+        }
+        if (filters?.categoryCode) {
+            params.append('categoryCode', filters.categoryCode);
+        }
+        if (filters?.minPrice) {
+            params.append('minPrice', String(filters.minPrice));
+        }
+        if (filters?.maxPrice) {
+            params.append('maxPrice', String(filters.maxPrice));
+        }
+        if (filters?.tradeType) {
+            params.append('tradeType', filters.tradeType);
+        }
+        if (filters?.sortBy) {
+            params.append('sortBy', filters.sortBy);
+        }
         const endpoint = `/products?${params}`;
         if (token) {
             return api.authenticatedGet<ProductListResponse>(endpoint, token);
