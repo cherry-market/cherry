@@ -18,7 +18,7 @@ export class ProductMapper {
       likes: backend.likeCount,
       isLiked: backend.isLiked,
       seller: {
-        name: '판매자',
+        name: backend.seller?.nickname ?? '판매자',
         avatar: '/cherry_logo_profile.svg',
         temperature: 36.5,
       },

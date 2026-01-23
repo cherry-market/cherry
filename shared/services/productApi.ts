@@ -13,6 +13,10 @@ export interface ProductSummary {
         code: string;
         displayName: string;
     } | null;
+    seller?: {
+        id: number;
+        nickname: string;
+    };
     createdAt: string; // ISO-8601 string
     isLiked: boolean;
     likeCount: number;
