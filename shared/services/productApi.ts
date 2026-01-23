@@ -8,7 +8,17 @@ export interface ProductSummary {
     status: 'SELLING' | 'RESERVED' | 'SOLD';
     tradeType: 'DIRECT' | 'DELIVERY' | 'BOTH';
     thumbnailUrl: string;
+    category: {
+        id: number;
+        code: string;
+        displayName: string;
+    } | null;
+    seller?: {
+        id: number;
+        nickname: string;
+    };
     createdAt: string; // ISO-8601 string
+    tags: string[];
     isLiked: boolean;
     likeCount: number;
 }
@@ -25,6 +35,12 @@ export interface ProductDetail {
     status: 'SELLING' | 'RESERVED' | 'SOLD';
     tradeType: 'DIRECT' | 'DELIVERY' | 'BOTH';
     imageUrls: string[];
+    category: {
+        id: number;
+        code: string;
+        displayName: string;
+    } | null;
+    tags: string[];
     description: string;
     seller: {
         id: number;
@@ -41,11 +57,29 @@ export const productApi = {
      * @param cursor - 다음 페이지 커서 (선택)
      * @param limit - 페이지당 항목 수 (기본값: 20, 최대: 50)
      */
-    getProducts: (cursor?: string, limit = 20, token?: string | null) => {
+    getProducts: (
+        cursor?: string,
+        limit = 20,
+        token?: string | null,
+        filters?: {
+            status?: 'SELLING' | 'RESERVED' | 'SOLD';
+            categoryCode?: string;
+            minPrice?: number;
+            maxPrice?: number;
+            tradeType?: 'DIRECT' | 'DELIVERY' | 'BOTH';
+            sortBy?: 'LATEST' | 'LOW_PRICE' | 'HIGH_PRICE';
+        }
+    ) => {
         const params = new URLSearchParams();
         if (cursor) {
             params.append('cursor', cursor);
         }
+        if (filters?.status) params.append('status', filters.status);
+        if (filters?.categoryCode) params.append('categoryCode', filters.categoryCode);
+        if (filters?.minPrice != null) params.append('minPrice', String(filters.minPrice));
+        if (filters?.maxPrice != null) params.append('maxPrice', String(filters.maxPrice));
+        if (filters?.tradeType) params.append('tradeType', filters.tradeType);
+        if (filters?.sortBy) params.append('sortBy', filters.sortBy);
         params.append('limit', String(limit));
         const endpoint = `/products?${params}`;
         if (token) {

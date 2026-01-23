@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, Bell, Menu, ArrowLeft } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
-import { CATEGORIES } from '@/shared/constants/categories';
+import type { Category } from '@/shared/services/categoryApi';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -9,8 +9,9 @@ interface HeaderProps {
   isScrolled: boolean;
   showBackButton?: boolean;
   onBack?: () => void;
-  activeCategory: string;
-  onCategoryChange: (category: string) => void;
+  activeCategory: string | 'ALL';
+  categories: Category[];
+  onCategoryChange: (categoryCode: string | 'ALL') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   showBackButton,
   onBack,
   activeCategory,
+  categories,
   onCategoryChange
 }) => {
   const [query, setQuery] = useState('');
@@ -107,17 +109,17 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
           <div className="w-full px-4 overflow-x-auto no-scrollbar">
             <div className="flex items-center gap-6 h-12 text-sm font-bold whitespace-nowrap">
-              {CATEGORIES.map((cat) => (
+              {[{ code: 'ALL', displayName: '전체' } as const, ...categories].map((cat) => (
                 <button
-                  key={cat}
-                  onClick={() => onCategoryChange(cat)}
+                  key={cat.code}
+                  onClick={() => onCategoryChange(cat.code)}
                   className={`
                               relative h-full flex items-center transition-colors
-                              ${activeCategory === cat ? 'text-cherry' : 'text-coolGray hover:text-ink'}
+                              ${activeCategory === cat.code ? 'text-cherry' : 'text-coolGray hover:text-ink'}
                           `}
                 >
-                  {cat}
-                  {activeCategory === cat && (
+                  {cat.displayName}
+                  {activeCategory === cat.code && (
                     <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-cherry rounded-t-full" />
                   )}
                 </button>

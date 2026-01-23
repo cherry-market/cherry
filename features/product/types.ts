@@ -27,10 +27,10 @@ export interface Product {
 
 export interface FilterState {
   status: ProductStatus | 'ALL';
-  category: string | 'ALL';
+  categoryCode: string | 'ALL';
   minPrice: number;
   maxPrice: number;
-  sortBy: 'LATEST' | 'POPULAR' | 'LOW_PRICE' | 'HIGH_PRICE';
+  sortBy: 'LATEST' | 'LOW_PRICE' | 'HIGH_PRICE';
   tradeType: TradeType;
 }
 

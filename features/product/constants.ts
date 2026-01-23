@@ -16,7 +16,7 @@ export const AI_WRITE_MOCK_RESULT =
 
 export const PRODUCT_FILTER_DEFAULT: FilterState = {
   status: 'ALL',
-  category: 'ALL',
+  categoryCode: 'ALL',
   minPrice: 0,
   maxPrice: 0,
   sortBy: 'LATEST',
@@ -36,7 +36,6 @@ export const PRODUCT_TRADE_TYPE_OPTIONS = ['ALL', 'DIRECT', 'DELIVERY'] as const
 
 export const PRODUCT_SORT_OPTIONS = [
   { id: 'LATEST', label: '최신순' },
-  { id: 'POPULAR', label: '인기순' },
   { id: 'LOW_PRICE', label: '낮은 가격순' },
   { id: 'HIGH_PRICE', label: '높은 가격순' },
 ] as const;
