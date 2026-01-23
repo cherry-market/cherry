@@ -1,5 +1,6 @@
 import type { Product } from '@/features/product/types';
 import type { ProductDetail, ProductSummary } from '@/shared/services/productApi';
+import { formatRelativeTimeKorean } from '@/shared/utils/time';
 
 export class ProductMapper {
   static toFrontend(backend: ProductSummary): Product {
@@ -12,7 +13,7 @@ export class ProductMapper {
       tradeType: backend.tradeType === 'BOTH' ? 'ALL' : backend.tradeType,
       images: [backend.thumbnailUrl],
       description: '',
-      uploadedTime: new Date(backend.createdAt).toLocaleString('ko-KR'),
+      uploadedTime: formatRelativeTimeKorean(backend.createdAt),
       category: backend.category?.displayName ?? '미분류',
       likes: backend.likeCount,
       isLiked: backend.isLiked,
@@ -36,7 +37,7 @@ export class ProductMapper {
       tradeType: backend.tradeType === 'BOTH' ? 'ALL' : backend.tradeType,
       images: backend.imageUrls,
       description: backend.description,
-      uploadedTime: new Date(backend.createdAt).toLocaleString('ko-KR'),
+      uploadedTime: formatRelativeTimeKorean(backend.createdAt),
       seller: {
         name: backend.seller.nickname,
         avatar: '/cherry_logo_profile.svg',
@@ -54,4 +55,3 @@ export class ProductMapper {
     return backendList.map(this.toFrontend);
   }
 }
-
