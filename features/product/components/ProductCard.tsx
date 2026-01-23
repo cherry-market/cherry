@@ -27,6 +27,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
             alt={product.title}
             className="w-full h-full object-cover transition-transform duration-700 ease-out"
             loading="lazy"
+            onError={(e) => {
+              const img = e.currentTarget;
+              img.onerror = null;
+              img.src = '/cherry_logo_profile.svg';
+            }}
           />
 
           {/* Industrial Status Tag */}

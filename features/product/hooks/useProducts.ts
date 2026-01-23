@@ -18,6 +18,7 @@ export const useProducts = (filter: FilterState) => {
     const [error, setError] = useState<string | null>(null);
     const hasInitializedLikes = useRef(false);
     const lastTokenRef = useRef<string | null>(token ?? null);
+    const loadMoreLockRef = useRef(false);
 
     const backendFilters = useMemo(() => ({
         status: filter.status === 'ALL' ? undefined : filter.status,
@@ -75,21 +76,27 @@ export const useProducts = (filter: FilterState) => {
      * 다음 페이지 로드 (무한 스크롤용)
      */
     const loadMore = useCallback(async () => {
-        if (isLoadingMore || !cursor) return;
+        if (loadMoreLockRef.current || isLoadingMore || !cursor) return;
 
+        loadMoreLockRef.current = true;
         setIsLoadingMore(true);
 
         try {
             const response = await productApi.getProducts(cursor, 20, token, backendFilters);
             const mappedProducts = ProductMapper.toFrontendList(response.items);
 
-            setProducts(prev => [...prev, ...mappedProducts]);
+            setProducts(prev => {
+                const seen = new Set(prev.map(p => p.id));
+                const deduped = mappedProducts.filter(p => !seen.has(p.id));
+                return [...prev, ...deduped];
+            });
             setCursor(response.nextCursor);
         } catch (err) {
             console.error('Failed to load more products:', err);
             // 추가 로딩 실패는 조용히 처리 (사용자 경험 고려)
         } finally {
             setIsLoadingMore(false);
+            loadMoreLockRef.current = false;
         }
     }, [cursor, isLoadingMore, token, backendFilters]);
 
