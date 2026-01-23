@@ -180,6 +180,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({ product, onBack })
             initialIsLiked={initialIsLiked}
             variant="stacked"
             size={24}
+            count={product.likes}
             className={pickButtonClassName}
           />
           <div className="pl-2 border-l border-gray-200">

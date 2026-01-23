@@ -31,12 +31,10 @@ export const PickButton: React.FC<PickButtonProps> = ({
         loginAlertOpen,
         closeLoginAlert,
         confirmLogin,
-    } = usePick({ productId, initialIsLiked });
+        likeCount,
+    } = usePick({ productId, initialIsLiked, initialLikeCount: count });
     const [isPopping, setIsPopping] = useState(false);
     const previousLikedRef = useRef(isLiked);
-    
-    // Store initial isLiked state to calculate delta correctly
-    const initialStoreLikedRef = useRef(isLiked);
 
     useEffect(() => {
         if (!previousLikedRef.current && isLiked) {
@@ -67,8 +65,7 @@ export const PickButton: React.FC<PickButtonProps> = ({
         ? 'text-[#FF2E88] text-[9px] font-bold'
         : 'text-silver-metal group-hover:text-[#FF2E88] text-[9px] font-bold';
 
-    const countDelta = isLiked === initialStoreLikedRef.current ? 0 : isLiked ? 1 : -1;
-    const displayCount = typeof count === 'number' ? Math.max(0, count + countDelta) : undefined;
+    const displayCount = typeof likeCount === 'number' ? likeCount : count;
     const countNode = isCounter && typeof displayCount === 'number'
         ? <span className={`text-[10px] ${countClassName}`}>{displayCount}</span>
         : null;
