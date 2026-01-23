@@ -27,7 +27,7 @@ export class ProductMapper {
             isLiked: backend.isLiked,
             seller: {
                 name: '판매자',
-                avatar: 'https://via.placeholder.com/50',
+                avatar: '/cherry_logo_profile.svg',
                 temperature: 36.5,
             },
             tags: [],
@@ -44,7 +44,7 @@ export class ProductMapper {
             id: backend.id,
             title: backend.title,
             price: backend.price,
-            image: backend.imageUrls[0] || 'https://via.placeholder.com/400',
+            image: backend.imageUrls[0] || '',
             status: backend.status,
             tradeType: backend.tradeType === 'BOTH' ? 'ALL' : backend.tradeType,
             images: backend.imageUrls,
@@ -54,7 +54,7 @@ export class ProductMapper {
             // Seller 정보 (부분적으로만 제공)
             seller: {
                 name: backend.seller.nickname,
-                avatar: 'https://via.placeholder.com/50',
+                avatar: '/cherry_logo_profile.svg',
                 temperature: 36.5,
             },
 
