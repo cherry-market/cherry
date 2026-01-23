@@ -38,66 +38,66 @@ export const BannerCarousel: React.FC = () => {
       });
     };
 
-    fetchImages();
+    // fetchImages(); // 현재 목업 사용으로 인해 이미지를 생성 할 필요 없음 제거가 필요
   }, []);
 
   return (
     <div className="w-full px-4 mt-4 mb-6">
-        {/* Fixed Mobile Height: 240px */}
-        <div className="relative w-full h-[240px] rounded-[24px] overflow-hidden glass-object shadow-object group bg-gray-100">
-            
-            {/* Slides */}
-            {BANNERS.map((banner, index) => {
-              const displayImage = images[banner.id] || banner.fallbackImage;
-              const isAiImage = !!images[banner.id];
+      {/* Fixed Mobile Height: 240px */}
+      <div className="relative w-full h-[240px] rounded-[24px] overflow-hidden glass-object shadow-object group bg-gray-100">
 
-              return (
-                <div 
-                    key={banner.id}
-                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-                >
-                    <div className="absolute inset-0 bg-gray-200">
-                        <img 
-                            src={displayImage} 
-                            alt={banner.title} 
-                            className={`w-full h-full object-cover transition-transform duration-[20s] ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-                        
-                        {isAiImage && (
-                          <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1 border border-white/20">
-                            <Sparkles size={10} className="text-cherry" />
-                            <span>AI Generated</span>
-                          </div>
-                        )}
-                    </div>
+        {/* Slides */}
+        {BANNERS.map((banner, index) => {
+          const displayImage = images[banner.id] || banner.fallbackImage;
+          const isAiImage = !!images[banner.id];
 
-                    <div className="absolute inset-0 flex flex-col justify-center px-6 text-white">
-                        <div className="inline-block px-2 py-0.5 mb-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-md w-fit">
-                            <span className="text-[9px] font-bold tracking-widest uppercase text-cherry-neon shadow-sm">Featured</span>
-                        </div>
-                        <h2 className="text-2xl font-black leading-tight mb-2 tracking-tight whitespace-pre-line drop-shadow-xl">
-                            {banner.title}
-                        </h2>
-                        <p className="text-sm font-medium opacity-90 drop-shadow-md line-clamp-1">
-                            {banner.subtitle}
-                        </p>
-                    </div>
+          return (
+            <div
+              key={banner.id}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+            >
+              <div className="absolute inset-0 bg-gray-200">
+                <img
+                  src={displayImage}
+                  alt={banner.title}
+                  className={`w-full h-full object-cover transition-transform duration-[20s] ease-linear ${index === currentIndex ? 'scale-110' : 'scale-100'}`}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+
+                {isAiImage && (
+                  <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1 border border-white/20">
+                    <Sparkles size={10} className="text-cherry" />
+                    <span>AI Generated</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="absolute inset-0 flex flex-col justify-center px-6 text-white">
+                <div className="inline-block px-2 py-0.5 mb-3 border border-white/30 rounded-full bg-white/10 backdrop-blur-md w-fit">
+                  <span className="text-[9px] font-bold tracking-widest uppercase text-cherry-neon shadow-sm">Featured</span>
                 </div>
-              );
-            })}
-
-            {/* Indicators */}
-            <div className="absolute bottom-4 left-6 z-20 flex gap-1.5">
-                {BANNERS.map((_, idx) => (
-                    <button 
-                        key={idx}
-                        onClick={() => setCurrentIndex(idx)}
-                        className={`h-1 rounded-full transition-all duration-300 shadow-sm ${idx === currentIndex ? 'w-6 bg-cherry' : 'w-1.5 bg-white/40 hover:bg-white'}`}
-                    />
-                ))}
+                <h2 className="text-2xl font-black leading-tight mb-2 tracking-tight whitespace-pre-line drop-shadow-xl">
+                  {banner.title}
+                </h2>
+                <p className="text-sm font-medium opacity-90 drop-shadow-md line-clamp-1">
+                  {banner.subtitle}
+                </p>
+              </div>
             </div>
+          );
+        })}
+
+        {/* Indicators */}
+        <div className="absolute bottom-4 left-6 z-20 flex gap-1.5">
+          {BANNERS.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`h-1 rounded-full transition-all duration-300 shadow-sm ${idx === currentIndex ? 'w-6 bg-cherry' : 'w-1.5 bg-white/40 hover:bg-white'}`}
+            />
+          ))}
         </div>
+      </div>
     </div>
   );
 };

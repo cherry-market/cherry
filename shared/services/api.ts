@@ -53,4 +53,49 @@ export const api = {
         }
         return response.json();
     },
+
+    authenticatedPost: async <T>(endpoint: string, token: string, body?: unknown): Promise<T> => {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: body ? JSON.stringify(body) : undefined,
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: 'Request failed' }));
+            throw new Error(error.message || `${response.status} ${response.statusText}`);
+        }
+        if (response.status === 204) {
+            return undefined as T;
+        }
+        const text = await response.text();
+        if (!text) {
+            return undefined as T;
+        }
+        return JSON.parse(text) as T;
+    },
+
+    authenticatedDelete: async <T>(endpoint: string, token: string): Promise<T> => {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: 'Request failed' }));
+            throw new Error(error.message || `${response.status} ${response.statusText}`);
+        }
+        if (response.status === 204) {
+            return undefined as T;
+        }
+        const text = await response.text();
+        if (!text) {
+            return undefined as T;
+        }
+        return JSON.parse(text) as T;
+    },
 };

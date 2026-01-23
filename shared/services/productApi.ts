@@ -9,6 +9,8 @@ export interface ProductSummary {
     tradeType: 'DIRECT' | 'DELIVERY' | 'BOTH';
     thumbnailUrl: string;
     createdAt: string; // ISO-8601 string
+    isLiked: boolean;
+    likeCount: number;
 }
 
 export interface ProductListResponse {
@@ -29,6 +31,8 @@ export interface ProductDetail {
         nickname: string;
     };
     createdAt: string;
+    isLiked: boolean;
+    likeCount: number;
 }
 
 export const productApi = {
@@ -37,25 +41,41 @@ export const productApi = {
      * @param cursor - 다음 페이지 커서 (선택)
      * @param limit - 페이지당 항목 수 (기본값: 20, 최대: 50)
      */
-    getProducts: (cursor?: string, limit = 20) => {
+    getProducts: (cursor?: string, limit = 20, token?: string | null) => {
         const params = new URLSearchParams();
         if (cursor) {
             params.append('cursor', cursor);
         }
         params.append('limit', String(limit));
-        return api.get<ProductListResponse>(`/products?${params}`);
+        const endpoint = `/products?${params}`;
+        if (token) {
+            return api.authenticatedGet<ProductListResponse>(endpoint, token);
+        }
+        return api.get<ProductListResponse>(endpoint);
     },
 
     /**
      * 상품 상세 조회
      * 부수 효과: 조회수 자동 증가 (Redis trending 업데이트)
      */
-    getProductDetail: (id: number) => api.get<ProductDetail>(`/products/${id}`),
+    getProductDetail: (id: number, token?: string | null) => {
+        const endpoint = `/products/${id}`;
+        if (token) {
+            return api.authenticatedGet<ProductDetail>(endpoint, token);
+        }
+        return api.get<ProductDetail>(endpoint);
+    },
 
     /**
      * 트렌딩 상품 조회 (조회수 기반 Top N)
      */
-    getTrending: (signal?: AbortSignal) => api.get<ProductListResponse>(`/products/trending`, signal),
+    getTrending: (token?: string | null, signal?: AbortSignal) => {
+        const endpoint = `/products/trending`;
+        if (token) {
+            return api.authenticatedGet<ProductListResponse>(endpoint, token);
+        }
+        return api.get<ProductListResponse>(endpoint, signal);
+    },
 
     /**
      * 조회수 증가 (명시적 호출용)

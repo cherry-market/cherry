@@ -1,9 +1,7 @@
 import React from 'react';
-import { CherryIcon } from '@/shared/ui/CherryIcon';
 import type { Product } from '../types';
 import { StatusBadge } from './StatusBadge';
-import { useProductLike } from '../hooks/useProductLike';
-import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
+import { PickButton } from '@/features/wish/ui/PickButton';
 
 interface ProductRowProps {
     product: Product;
@@ -11,7 +9,9 @@ interface ProductRowProps {
 }
 
 export const ProductRow: React.FC<ProductRowProps> = ({ product, onClick }) => {
-    const { isLiked, toggleLike, likesCount, loginAlertOpen, closeLoginAlert, confirmLogin } = useProductLike(product);
+    const initialIsLiked = product.isLiked ?? false;
+    const pickCount = product.likes;
+    const pickButtonClassName = 'min-w-[32px] justify-end p-2 -mr-2 rounded-full hover:bg-gray-100 transition-all';
 
     return (
         <div
@@ -59,24 +59,16 @@ export const ProductRow: React.FC<ProductRowProps> = ({ product, onClick }) => {
                     </div>
 
                     {/* Like Count - Visual Only as per RFP -> Now Interactive */}
-                    <button
-                        onClick={toggleLike}
-                        className="flex items-center gap-1 min-w-[32px] justify-end p-2 -mr-2 rounded-full hover:bg-gray-100 active:scale-95 transition-all"
-                    >
-                        <CherryIcon isLiked={isLiked} size={16} className={isLiked ? "" : "text-gray-300"} />
-                        <span className={`text-xs ${isLiked ? 'text-cherry font-bold' : 'text-gray-400'}`}>{likesCount}</span>
-                    </button>
+                    <PickButton
+                        productId={product.id}
+                        initialIsLiked={initialIsLiked}
+                        variant="counter"
+                        size={16}
+                        count={pickCount}
+                        className={pickButtonClassName}
+                    />
                 </div>
             </div>
-
-            <ConfirmDialog
-                isOpen={loginAlertOpen}
-                title="로그인이 필요해요"
-                description="관심 상품으로 등록하려면 로그인이 필요합니다."
-                confirmLabel="로그인하기"
-                onConfirm={confirmLogin}
-                onCancel={closeLoginAlert}
-            />
         </div>
     );
 };

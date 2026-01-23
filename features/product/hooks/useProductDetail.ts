@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import type { Product } from '@/features/product/types';
 import { productApi } from '@/shared/services/productApi';
 import { ProductMapper } from '@/shared/mappers/productMapper';
+import { useAuthStore } from '@/features/auth/model/authStore';
 
 /**
  * useProductDetail - 상품 상세 데이터 로딩
  */
 export const useProductDetail = (productId: number) => {
+    const token = useAuthStore(state => state.token);
     const [product, setProduct] = useState<Product | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -17,7 +19,7 @@ export const useProductDetail = (productId: number) => {
             setError(null);
 
             try {
-                const detail = await productApi.getProductDetail(productId);
+                const detail = await productApi.getProductDetail(productId, token);
                 const mappedProduct = ProductMapper.toFrontendFromDetail(detail);
                 setProduct(mappedProduct);
             } catch (err) {
@@ -29,7 +31,7 @@ export const useProductDetail = (productId: number) => {
         };
 
         loadProductDetail();
-    }, [productId]);
+    }, [productId, token]);
 
     return {
         product,
