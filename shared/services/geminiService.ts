@@ -1,7 +1,15 @@
-import { GoogleGenAI } from "@google/genai";
+import { api } from "@/shared/services/api";
 
-const apiKey = process.env.API_KEY || '';
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+type AspectRatio = "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
+
+interface GenerateGoodsImageRequest {
+  promptDescription: string;
+  aspectRatio: AspectRatio;
+}
+
+interface GenerateGoodsImageResponse {
+  dataUrl: string;
+}
 
 /**
  * Generates a creative image for K-Pop goods using Gemini Nano Banana (Flash Image) model.
@@ -11,46 +19,12 @@ const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
  */
 export const generateGoodsImage = async (
   promptDescription: string, 
-  aspectRatio: "1:1" | "3:4" | "4:3" | "9:16" | "16:9" = "1:1"
+  aspectRatio: AspectRatio = "1:1"
 ): Promise<string | null> => {
-  if (!ai) {
-    console.warn("Gemini API Key is missing. Returning null to use placeholder.");
-    return null;
-  }
-
   try {
-    const model = 'gemini-2.5-flash-image';
-    
-    const fullPrompt = `
-      Professional product photography of: ${promptDescription}.
-      Style: K-Pop merchandise aesthetic, high-end, clean, vibrant, studio lighting.
-      No text overlays, no distorted hands, photorealistic 8k.
-    `;
-
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: {
-        parts: [
-          {
-            text: fullPrompt,
-          },
-        ],
-      },
-      config: {
-        imageConfig: {
-          aspectRatio: aspectRatio,
-        },
-      },
-    });
-
-    // Extract image
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
-    }
-    
-    return null;
+    const body: GenerateGoodsImageRequest = { promptDescription, aspectRatio };
+    const res = await api.post<GenerateGoodsImageResponse>("/ai/goods-image", body);
+    return res?.dataUrl || null;
   } catch (error) {
     console.error("Error generating image with Gemini:", error);
     return null;

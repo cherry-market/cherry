@@ -18,9 +18,6 @@ export const BannerCarousel: React.FC = () => {
 
   useEffect(() => {
     const fetchImages = async () => {
-      const hasApiKey = !!process.env.API_KEY;
-      if (!hasApiKey) return;
-
       BANNERS.forEach(async (banner) => {
         if (images[banner.id] || generating[banner.id]) return;
 
