@@ -1,6 +1,6 @@
 /**
  * API Base URL Configuration
- * - Production: Reads from VITE_API_BASE_URL environment variable (https://api.cherriy.com)
+ * - Production: Reads from VITE_API_BASE_URL environment variable (https://api.cheryi.com)
  * - Local Development: Falls back to http://localhost:8080
  * - IMPORTANT: VITE_API_BASE_URL must be set for production builds
  */
