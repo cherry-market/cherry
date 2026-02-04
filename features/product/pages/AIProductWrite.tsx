@@ -4,18 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { Input, TextArea } from '@/shared/ui/Input';
 import { Button } from '@/shared/ui/Button';
 import {
-    AI_WRITE_GENERATION_DELAY_MS,
     AI_WRITE_MOCK_IMAGE_URL,
-    AI_WRITE_MOCK_RESULT,
     PRODUCT_IMAGE_UPLOAD_LIMIT,
     PRODUCT_WRITE_MAX_IMAGES_MESSAGE
 } from '../constants';
 import { ROUTES } from '@/shared/constants/routes';
+import { productApi } from '@/shared/services/productApi';
+import { useAuthStore } from '@/features/auth/model/authStore';
 
 type WritingStep = 'FORM' | 'ANALYSIS' | 'RESULT';
 
 export const AIProductWrite: React.FC = () => {
     const navigate = useNavigate();
+    const { token } = useAuthStore();
     const [currentStep, setCurrentStep] = useState<WritingStep>('FORM');
 
     // Data States
@@ -44,13 +45,25 @@ export const AIProductWrite: React.FC = () => {
         setImages(images.filter((_, i) => i !== index));
     };
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
         setCurrentStep('ANALYSIS');
-        // Simulate AI delay
-        setTimeout(() => {
-            setGeneratedResult(AI_WRITE_MOCK_RESULT);
+        try {
+            const keywords = [description, extraDesc].filter(Boolean).join(', ') || '상품';
+            const response = await productApi.generateDescription(token, {
+                keywords,
+                category: 'ETC',
+            });
+            setGeneratedResult(response.generatedDescription);
             setCurrentStep('RESULT');
-        }, AI_WRITE_GENERATION_DELAY_MS);
+        } catch (error) {
+            console.error(error);
+            alert('AI 생성에 실패했습니다.');
+            setCurrentStep('FORM');
+        }
     };
 
     const handleComplete = () => {

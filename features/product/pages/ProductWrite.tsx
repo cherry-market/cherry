@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Camera, Check, ChevronRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES } from '@/shared/constants/categories';
 import { Input, TextArea } from '@/shared/ui/Input';
 import { Button } from '@/shared/ui/Button';
+import { categoryApi, type Category } from '@/shared/services/categoryApi';
+import { productApi } from '@/shared/services/productApi';
+import { useAuthStore } from '@/features/auth/model/authStore';
 import {
     PRODUCT_IMAGE_UPLOAD_LIMIT,
     PRODUCT_WRITE_MAX_IMAGES_MESSAGE,
-    PRODUCT_WRITE_MOCK_IMAGE_URL,
     PRODUCT_WRITE_SUCCESS_MESSAGE
 } from '../constants';
 import { ROUTES } from '@/shared/constants/routes';
@@ -17,8 +19,10 @@ export const ProductWrite: React.FC = () => {
 
     // Form States
     const [images, setImages] = useState<string[]>([]);
+    const [imageKeys, setImageKeys] = useState<string[]>([]);
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('');
+    const [categoryId, setCategoryId] = useState<number | null>(null);
     const [price, setPrice] = useState('');
     const [description, setDescription] = useState('');
     const [tradeTypes, setTradeTypes] = useState<string[]>(['DIRECT']); // 'DIRECT' | 'DELIVERY'
@@ -28,6 +32,11 @@ export const ProductWrite: React.FC = () => {
 
     // UI States
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+    const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const inputRef = useRef<HTMLInputElement>(null);
+    const { token } = useAuthStore();
 
     // Derived State for Validation (Simplified for MVP)
     const isValid =
@@ -44,6 +53,12 @@ export const ProductWrite: React.FC = () => {
         }
     }, [isFreeSharing]);
 
+    useEffect(() => {
+        categoryApi.getCategories()
+            .then(setAvailableCategories)
+            .catch(() => setAvailableCategories([]));
+    }, []);
+
     // --- Handlers ---
 
     const handleBack = () => {
@@ -55,7 +70,61 @@ export const ProductWrite: React.FC = () => {
             alert(PRODUCT_WRITE_MAX_IMAGES_MESSAGE);
             return;
         }
-        setImages([...images, PRODUCT_WRITE_MOCK_IMAGE_URL]);
+        inputRef.current?.click();
+    };
+
+    const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files ?? []);
+        if (!files.length) return;
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+        const available = PRODUCT_IMAGE_UPLOAD_LIMIT - images.length;
+        const selected = files.slice(0, available);
+        if (selected.length < files.length) {
+            alert(PRODUCT_WRITE_MAX_IMAGES_MESSAGE);
+        }
+
+        try {
+            setIsUploading(true);
+            const metas = selected.map((file) => ({
+                fileName: file.name,
+                contentType: file.type,
+                size: file.size,
+            }));
+            const { items } = await productApi.prepareUpload(token, metas);
+            if (!items || items.length !== selected.length) {
+                throw new Error('Upload prepare mismatch');
+            }
+            const newKeys: string[] = [];
+            const newImages: string[] = [];
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const file = selected[i];
+                const headers: Record<string, string> = { ...item.requiredHeaders };
+                if (!headers['Content-Type']) {
+                    headers['Content-Type'] = file.type;
+                }
+                await fetch(item.uploadUrl, {
+                    method: 'PUT',
+                    headers,
+                    body: file,
+                });
+                newKeys.push(item.imageKey);
+                newImages.push(URL.createObjectURL(file));
+            }
+            setImageKeys((prev) => [...prev, ...newKeys]);
+            setImages((prev) => [...prev, ...newImages]);
+        } catch (error) {
+            console.error(error);
+            alert('이미지 업로드에 실패했습니다.');
+        } finally {
+            setIsUploading(false);
+            if (inputRef.current) {
+                inputRef.current.value = '';
+            }
+        }
     };
 
     const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,10 +144,34 @@ export const ProductWrite: React.FC = () => {
         }
     };
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if (!isValid) return;
-        alert(PRODUCT_WRITE_SUCCESS_MESSAGE);
-        navigate(ROUTES.ROOT);
+        if (!token) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+        if (!categoryId) {
+            alert('카테고리를 선택해주세요.');
+            return;
+        }
+        const rawPrice = isFreeSharing ? 0 : Number(price.replace(/,/g, ''));
+        const tradeType = tradeTypes.length === 2 ? 'BOTH' : (tradeTypes[0] as 'DIRECT' | 'DELIVERY');
+        try {
+            await productApi.createProduct(token, {
+                title,
+                price: rawPrice,
+                description,
+                categoryId,
+                tradeType,
+                imageKeys,
+                tags: [],
+            });
+            alert(PRODUCT_WRITE_SUCCESS_MESSAGE);
+            navigate(ROUTES.ROOT);
+        } catch (error) {
+            console.error(error);
+            alert('상품 등록에 실패했습니다.');
+        }
     };
 
     return (
@@ -102,6 +195,7 @@ export const ProductWrite: React.FC = () => {
                     <div className="flex gap-4 overflow-x-auto no-scrollbar">
                         <button
                             onClick={handleImageUpload}
+                            disabled={isUploading}
                             className="flex-shrink-0 w-20 h-20 rounded-xl border border-dashed border-cherry/30 bg-cherry/5 flex flex-col items-center justify-center text-cherry gap-1 active:bg-cherry/10 transition-colors"
                         >
                             <Camera size={24} />
@@ -112,7 +206,10 @@ export const ProductWrite: React.FC = () => {
                             <div key={idx} className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-gray-100 relative">
                                 <img src={img} alt="upload" className="w-full h-full object-cover" />
                                 <button
-                                    onClick={() => setImages(images.filter((_, i) => i !== idx))}
+                                    onClick={() => {
+                                        setImages(images.filter((_, i) => i !== idx));
+                                        setImageKeys(imageKeys.filter((_, i) => i !== idx));
+                                    }}
                                     className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5"
                                 >
                                     <X size={12} />
@@ -245,12 +342,17 @@ export const ProductWrite: React.FC = () => {
                             </button>
                         </div>
                         <div className="overflow-y-auto p-4">
-                            <div className="grid grid-cols-1 gap-2">
-                                {CATEGORIES.map((cat) => (
+                        <div className="grid grid-cols-1 gap-2">
+                                {(availableCategories.length
+                                    ? availableCategories.map((c) => c.displayName)
+                                    : CATEGORIES.filter((c) => c !== '전체')
+                                ).map((cat) => (
                                     <button
                                         key={cat}
                                         onClick={() => {
                                             setCategory(cat);
+                                            const found = availableCategories.find((c) => c.displayName === cat);
+                                            setCategoryId(found ? found.id : null);
                                             setIsCategoryOpen(false);
                                         }}
                                         className={`p-4 text-left rounded-xl font-bold transition-all ${category === cat ? 'bg-cherry/5 text-cherry ring-1 ring-cherry/20' : 'hover:bg-gray-50 text-ink'}`}
@@ -263,6 +365,15 @@ export const ProductWrite: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            <input
+                ref={inputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="hidden"
+                onChange={handleFilesSelected}
+            />
         </div>
     );
 };

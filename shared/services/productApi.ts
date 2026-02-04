@@ -51,6 +51,43 @@ export interface ProductDetail {
     likeCount: number;
 }
 
+export interface UploadFileMeta {
+    fileName: string;
+    contentType: string;
+    size: number;
+}
+
+export interface UploadImagesResponse {
+    items: {
+        imageKey: string;
+        uploadUrl: string;
+        requiredHeaders: Record<string, string>;
+    }[];
+}
+
+export interface ProductCreateRequest {
+    title: string;
+    price: number;
+    description?: string;
+    categoryId: number;
+    tradeType: 'DIRECT' | 'DELIVERY' | 'BOTH';
+    imageKeys: string[];
+    tags: string[];
+}
+
+export interface ProductCreateResponse {
+    productId: number;
+}
+
+export interface AiGenerateRequest {
+    keywords: string;
+    category: string;
+}
+
+export interface AiGenerateResponse {
+    generatedDescription: string;
+}
+
 export const productApi = {
     /**
      * 상품 목록 조회 (cursor 기반 페이지네이션)
@@ -116,4 +153,13 @@ export const productApi = {
      * 현재: GET /products/{id}에서 자동 증가하므로 중복 호출 주의
      */
     increaseViewCount: (id: number) => api.post<void>(`/products/${id}/views`),
+
+    prepareUpload: (token: string, files: UploadFileMeta[]) =>
+        api.authenticatedPost<UploadImagesResponse>('/api/upload/images', token, { files }),
+
+    createProduct: (token: string, body: ProductCreateRequest) =>
+        api.authenticatedPost<ProductCreateResponse>('/products', token, body),
+
+    generateDescription: (token: string, body: AiGenerateRequest) =>
+        api.authenticatedPost<AiGenerateResponse>('/api/ai/generate-description', token, body),
 };
